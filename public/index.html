@@ -3,226 +3,179 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>UNI Hub | Campus Event & Club Management</title>
+    <title>UNI Hub | Campus Event and Club Management</title>
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
-      href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700;800&family=Space+Grotesk:wght@500;700&display=swap"
+      href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Space+Grotesk:wght@500;700&display=swap"
       rel="stylesheet"
     />
     <link rel="stylesheet" href="/style.css" />
   </head>
-  <body data-page="home">
+  <body data-page="home" class="marketing-page">
     <header class="site-header">
-      <div class="brand">
-        <div class="brand-mark">U</div>
-        <div>
-          <p class="eyebrow">Campus Experience Platform</p>
-          <a href="/" class="brand-name">UNI Hub</a>
-        </div>
+      <div class="shell topbar">
+        <a href="/" class="brand">
+          <span class="brand-mark">U</span>
+          <span>
+            <span class="eyebrow">Campus Experience Platform</span>
+            <strong class="brand-name">UNI Hub</strong>
+          </span>
+        </a>
+        <nav class="site-nav">
+          <a href="#platform">Platform</a>
+          <a href="#modules">Modules</a>
+          <a href="#operations">Operations</a>
+          <a href="/register" class="nav-link strong">Register</a>
+          <a href="/login" class="button secondary">Log In</a>
+        </nav>
       </div>
-      <nav class="top-nav">
-        <a href="#platform">Platform</a>
-        <a href="#features">Features</a>
-        <a href="#workflow">Workflow</a>
-        <a href="/register" class="nav-auth nav-register">Register</a>
-        <a href="/login" class="button ghost nav-auth nav-login">Log In</a>
-      </nav>
     </header>
 
     <main>
-      <section class="hero" id="platform">
-        <div class="hero-copy">
-          <p class="hero-tag">Campus Event and Club Management System</p>
-          <h1>One professional system for campus events, clubs, and student engagement.</h1>
-          <p class="hero-text">
-            UNI Hub gives universities a central place to manage student activities,
-            promote events, organize clubs, publish announcements, and monitor
-            participation across one connected experience.
-          </p>
-          <div class="hero-actions">
-            <a href="/register" class="button">Get Started</a>
-            <a href="/login" class="button secondary">Log In</a>
-          </div>
-          <div class="hero-metrics">
-            <div>
-              <strong>125</strong>
-              <span>RSVPs managed</span>
+      <section class="hero-section">
+        <div class="shell hero-grid" id="platform">
+          <div class="hero-copy">
+            <p class="eyebrow">Campus Event and Club Management System</p>
+            <h1>Professional tools for student events, clubs, communication, and engagement.</h1>
+            <p class="hero-lead">
+              UNI Hub helps institutions organize student life through one connected
+              workspace for event publishing, club management, RSVP tracking, announcements,
+              and campus activity oversight.
+            </p>
+            <div class="hero-actions">
+              <a href="/register" class="button">Create Account</a>
+              <a href="/login" class="button secondary">Access Platform</a>
             </div>
-            <div>
-              <strong>8</strong>
-              <span>Events active</span>
-            </div>
-            <div>
-              <strong>350</strong>
-              <span>Check-ins recorded</span>
+            <div class="metric-row">
+              <article class="metric-card">
+                <span>Structured workflows</span>
+                <strong>Events, clubs, and communication in one system</strong>
+              </article>
+              <article class="metric-card">
+                <span>Professional visibility</span>
+                <strong>Present campus activity through a cleaner digital front door</strong>
+              </article>
             </div>
           </div>
-        </div>
 
-        <div class="device-scene">
-          <section class="institution-showcase">
-            <div class="institution-visual">
+          <div class="hero-visual">
+            <article class="institution-card institution-media">
               <img
                 id="institution-image"
-                src="https://images.unsplash.com/photo-1562774053-701939374585?auto=format&fit=crop&w=1200&q=80"
+                src="https://images.unsplash.com/photo-1562774053-701939374585?auto=format&fit=crop&w=1600&q=80"
                 alt="Institution campus"
               />
               <div class="institution-overlay">
-                <p class="eyebrow">Institution Profile</p>
-                <h3 id="institution-name">Your Institution, Presented Professionally</h3>
+                <p class="eyebrow">Institution Identity</p>
+                <h2 id="institution-name">Your Institution, Presented Clearly</h2>
                 <p id="institution-caption">
-                  Admins can upload a branded campus image from the admin panel to personalize the landing page.
+                  Administrators can manage the institution image, title, and homepage message from the admin workspace.
                 </p>
               </div>
-            </div>
-            <div class="institution-facts">
-              <article class="institution-card">
-                <span>Branded institution image</span>
-                <strong>Show campus identity directly on the landing page.</strong>
-              </article>
-              <article class="institution-card">
-                <span>Admin-managed homepage</span>
-                <strong>Update the visual presentation from the admin panel whenever needed.</strong>
-              </article>
-              <article class="institution-card">
-                <span>Student-facing platform</span>
-                <strong>Lead visitors straight into registration or login with clear calls to action.</strong>
-              </article>
-            </div>
-          </section>
+            </article>
 
-          <div class="phone">
-            <div class="phone-notch"></div>
-            <div class="phone-content">
-              <div class="phone-header">Campus Events</div>
-              <input class="phone-search" type="text" value="Search" readonly />
-              <div id="phone-events" class="phone-events"></div>
+            <div class="hero-panels">
+              <article class="surface-card">
+                <div class="card-heading">
+                  <h3>Upcoming Activity</h3>
+                  <span class="label">Live Preview</span>
+                </div>
+                <div id="hero-events" class="stack-list"></div>
+              </article>
+              <article class="surface-card">
+                <div class="card-heading">
+                  <h3>Active Clubs</h3>
+                  <span class="label">Directory</span>
+                </div>
+                <div id="hero-clubs" class="stack-list"></div>
+              </article>
             </div>
           </div>
         </div>
       </section>
 
-      <section class="preview-shell">
-        <div class="laptop preview-laptop">
-          <div class="screen">
-            <div class="screen-topbar">
-              <div class="mini-brand"></div>
-              <nav>
-                <span class="active">Dashboard</span>
-                <span>Events</span>
-                <span>Clubs</span>
-                <span>Announcements</span>
-              </nav>
-              <div class="avatar-pill">Hi, Alex!</div>
-            </div>
-            <div class="screen-grid">
-              <article class="panel">
-                <div class="panel-header">
-                  <h3>Upcoming Events</h3>
-                </div>
-                <div id="hero-events" class="mock-list"></div>
-              </article>
-              <article class="panel">
-                <div class="panel-header">
-                  <h3>Clubs & Organizations</h3>
-                </div>
-                <div id="hero-clubs" class="mock-list clubs"></div>
-              </article>
-              <article class="panel panel-short">
-                <div class="panel-header">
-                  <h3>Quick Links</h3>
-                </div>
-                <div class="quick-actions">
-                  <button type="button" class="quick orange">Create Event</button>
-                  <button type="button" class="quick green">Join a Club</button>
-                  <button type="button" class="quick blue">My RSVPs</button>
-                </div>
-              </article>
-              <article class="panel panel-short">
-                <div class="panel-header">
-                  <h3>Statistics</h3>
-                </div>
-                <div class="stats-strip">
-                  <div><strong>125</strong><span>RSVPs</span></div>
-                  <div><strong>8</strong><span>Events</span></div>
-                  <div><strong>350</strong><span>Check-ins</span></div>
-                </div>
-              </article>
-            </div>
+      <section class="section-block">
+        <div class="shell">
+          <div class="section-heading">
+            <p class="eyebrow">Platform Value</p>
+            <h2>Designed for students, organizers, and administrators together.</h2>
+            <p>
+              Every major workflow is organized into a single platform so campus teams
+              can reduce manual follow-up and students can see what matters faster.
+            </p>
           </div>
-          <div class="laptop-base"></div>
+          <div class="value-grid">
+            <article class="surface-card value-card">
+              <span class="value-code">01</span>
+              <h3>Event Management</h3>
+              <p>Create events with clear scheduling, locations, categories, and attendance actions.</p>
+            </article>
+            <article class="surface-card value-card">
+              <span class="value-code">02</span>
+              <h3>Club Directory</h3>
+              <p>Organize student organizations in a searchable structure that supports discovery and joining.</p>
+            </article>
+            <article class="surface-card value-card">
+              <span class="value-code">03</span>
+              <h3>RSVP and Attendance</h3>
+              <p>Track event interest, participation, and check-in activity through one connected flow.</p>
+            </article>
+            <article class="surface-card value-card">
+              <span class="value-code">04</span>
+              <h3>Announcements and Oversight</h3>
+              <p>Keep campus communication visible while giving leadership better activity insight.</p>
+            </article>
+          </div>
         </div>
       </section>
 
-      <section class="proof-strip">
-        <article>
-          <span>For Students</span>
-          <strong>Discover events, follow clubs, and manage participation from one account.</strong>
-        </article>
-        <article>
-          <span>For Organizers</span>
-          <strong>Create activities, share updates, and track turnout without manual overhead.</strong>
-        </article>
-        <article>
-          <span>For Institutions</span>
-          <strong>Bring visibility, consistency, and reporting to student life operations.</strong>
-        </article>
-      </section>
-
-      <section class="feature-row" id="features">
-        <article class="feature-card">
-          <div class="feature-icon feature-code">01</div>
-          <h3>Event Management</h3>
-          <p>Create and publish campus events with schedules, venues, categories, and attendance actions.</p>
-        </article>
-        <article class="feature-card">
-          <div class="feature-icon feature-code">02</div>
-          <h3>Club Directory</h3>
-          <p>Organize student organizations in a clear directory that helps users find the right communities.</p>
-        </article>
-        <article class="feature-card">
-          <div class="feature-icon feature-code">03</div>
-          <h3>RSVP and Check-In</h3>
-          <p>Support the full attendance flow from registration and RSVP through to event-day check-in.</p>
-        </article>
-        <article class="feature-card">
-          <div class="feature-icon feature-code">04</div>
-          <h3>Announcements and Reporting</h3>
-          <p>Keep students informed and give administrators visibility into participation and activity trends.</p>
-        </article>
-      </section>
-
-      <section class="info-section" id="workflow">
-        <div class="section-heading">
-          <p class="eyebrow">How It Works</p>
-          <h2>Built around the real workflow of student engagement.</h2>
-          <p>
-            UNI Hub supports the key stages of campus activity management, from
-            publishing events to measuring turnout after the event ends.
-          </p>
+      <section class="section-block muted-block" id="modules">
+        <div class="shell preview-grid">
+          <div class="section-heading compact">
+            <p class="eyebrow">What Students See</p>
+            <h2>A cleaner experience from discovery to participation.</h2>
+            <p>
+              The platform homepage, dashboard, and mobile event views work together to
+              make campus activity easier to understand and easier to act on.
+            </p>
+          </div>
+          <article class="surface-card mobile-preview">
+            <div class="phone-frame">
+              <div class="phone-bar"></div>
+              <div class="phone-screen">
+                <div class="phone-title">Campus Events</div>
+                <div id="phone-events" class="stack-list"></div>
+              </div>
+            </div>
+          </article>
         </div>
-        <div class="workflow-grid">
-          <article class="workflow-step">
-            <span class="workflow-number">1</span>
-            <h3>Publish</h3>
-            <p>Set up events, update club information, and share details in a structured format.</p>
-          </article>
-          <article class="workflow-step">
-            <span class="workflow-number">2</span>
-            <h3>Promote</h3>
-            <p>Use announcements and dashboard visibility to help students discover what matters to them.</p>
-          </article>
-          <article class="workflow-step">
-            <span class="workflow-number">3</span>
-            <h3>Track</h3>
-            <p>Monitor RSVP activity, turnout, and check-ins through one connected admin view.</p>
-          </article>
-          <article class="workflow-step">
-            <span class="workflow-number">4</span>
-            <h3>Improve</h3>
-            <p>Review engagement signals and use them to plan stronger student programs over time.</p>
-          </article>
+      </section>
+
+      <section class="section-block" id="operations">
+        <div class="shell">
+          <div class="section-heading">
+            <p class="eyebrow">Operational Flow</p>
+            <h2>Built around real campus coordination.</h2>
+          </div>
+          <div class="ops-grid">
+            <article class="surface-card ops-card">
+              <strong>Publish</strong>
+              <p>Create events, present clubs, and structure campus information professionally.</p>
+            </article>
+            <article class="surface-card ops-card">
+              <strong>Engage</strong>
+              <p>Students log in, register, explore opportunities, and follow the communities they care about.</p>
+            </article>
+            <article class="surface-card ops-card">
+              <strong>Track</strong>
+              <p>Monitor attendance, announcements, and platform activity through one dashboard.</p>
+            </article>
+            <article class="surface-card ops-card">
+              <strong>Improve</strong>
+              <p>Use platform data and visibility to strengthen student programming over time.</p>
+            </article>
+          </div>
         </div>
       </section>
     </main>

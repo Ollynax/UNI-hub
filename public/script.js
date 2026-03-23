@@ -17,17 +17,29 @@ function isAuthenticated() {
 }
 
 function getCurrentUser() {
-  const raw = window.localStorage.getItem("uniHubCurrentUser");
-  return raw ? JSON.parse(raw) : null;
+  try {
+    const raw = window.localStorage.getItem("uniHubCurrentUser");
+    return raw ? JSON.parse(raw) : null;
+  } catch {
+    return null;
+  }
 }
 
 function setCurrentUser(user) {
   window.localStorage.setItem("uniHubCurrentUser", JSON.stringify(user));
 }
 
+function setText(id, value) {
+  const element = document.getElementById(id);
+  if (element) element.textContent = value;
+}
+
 function setAuthMessage(message) {
-  const authMessage = document.getElementById("auth-message");
-  if (authMessage) authMessage.textContent = message || "";
+  setText("auth-message", message || "");
+}
+
+function setBrandingMessage(message) {
+  setText("branding-message", message || "");
 }
 
 function signIn(user) {
@@ -64,16 +76,15 @@ function setupAuthFlows() {
 
       try {
         setAuthMessage("");
-        const payload = {
-          email: formData.get("email"),
-          password: formData.get("password"),
-        };
-        const data = await fetchJson("/api/auth/login", {
+        const result = await fetchJson("/api/auth/login", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(payload),
+          body: JSON.stringify({
+            email: formData.get("email"),
+            password: formData.get("password"),
+          }),
         });
-        signIn(data.user);
+        signIn(result.user);
       } catch (error) {
         setAuthMessage(error.message);
       }
@@ -94,20 +105,19 @@ function setupAuthFlows() {
 
       try {
         setAuthMessage("");
-        const payload = {
-          name: formData.get("name"),
-          studentId: formData.get("studentId"),
-          email: formData.get("email"),
-          department: formData.get("department"),
-          year: formData.get("year"),
-          password,
-        };
-        const data = await fetchJson("/api/auth/register", {
+        const result = await fetchJson("/api/auth/register", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(payload),
+          body: JSON.stringify({
+            name: formData.get("name"),
+            studentId: formData.get("studentId"),
+            email: formData.get("email"),
+            department: formData.get("department"),
+            year: formData.get("year"),
+            password,
+          }),
         });
-        signIn(data.user);
+        signIn(result.user);
       } catch (error) {
         setAuthMessage(error.message);
       }
@@ -124,25 +134,60 @@ function setupAuthFlows() {
   return true;
 }
 
-function clubIcon(icon) {
-  const icons = {
-    camera: "📷",
-    theatre: "🎭",
-    science: "🔬",
-    rocket: "🚀",
-  };
-  return icons[icon] || "★";
+function emptyStateMarkup(message) {
+  return `<div class="empty-state">${message}</div>`;
+}
+
+function getClubBadge(club) {
+  if (!club?.name) return "CL";
+  return club.name
+    .split(" ")
+    .slice(0, 2)
+    .map((part) => part[0]?.toUpperCase() || "")
+    .join("");
+}
+
+function previewEventMarkup(event) {
+  return `
+    <article class="preview-item">
+      <div class="preview-date">
+        <span>${event.month || "TBD"}</span>
+        <strong>${event.day || "--"}</strong>
+      </div>
+      <div class="preview-copy">
+        <h4>${event.title}</h4>
+        <p>${event.location || "Location pending"}</p>
+        <small>${event.category || "Campus activity"}</small>
+      </div>
+      <button type="button" class="table-action">${event.actionLabel || "View"}</button>
+    </article>
+  `;
+}
+
+function mobileEventMarkup(event) {
+  return `
+    <article class="phone-card">
+      <div class="preview-date">
+        <span>${event.month || "TBD"}</span>
+        <strong>${event.day || "--"}</strong>
+      </div>
+      <div class="preview-copy">
+        <h4>${event.title}</h4>
+        <p>${event.location || "Location pending"}</p>
+      </div>
+    </article>
+  `;
 }
 
 function clubMarkup(club) {
   return `
     <article class="club-card">
-      <div class="club-icon">${clubIcon(club.icon)}</div>
+      <div class="club-icon">${getClubBadge(club)}</div>
       <div>
         <h4>${club.name}</h4>
-        <p>${club.focus}</p>
+        <p>${club.focus || "Club information will appear here."}</p>
       </div>
-      <span class="club-meta">${club.members} members</span>
+      <span class="club-meta">${club.members || 0} members</span>
     </article>
   `;
 }
@@ -151,7 +196,7 @@ function announcementMarkup(item) {
   return `
     <article class="announcement-card">
       <h4>${item.title}</h4>
-      <p>${item.detail}</p>
+      <p>${item.detail || "Announcement details will appear here."}</p>
     </article>
   `;
 }
@@ -162,28 +207,6 @@ function statMarkup(label, value) {
       <strong>${value}</strong>
       <span>${label}</span>
     </div>
-  `;
-}
-
-function emptyStateMarkup(message) {
-  return `<div class="empty-state">${message}</div>`;
-}
-
-function heroEventMarkup(event) {
-  return `
-    <article class="mock-item">
-      <div class="mini-date ${event.status.toLowerCase()}">
-        <span>${event.month}</span>
-        <strong>${event.day}</strong>
-      </div>
-      <div>
-        <h4>${event.title}</h4>
-        <div class="mini-bars">
-          <span></span><span></span>
-        </div>
-      </div>
-      <button type="button">${event.actionLabel}</button>
-    </article>
   `;
 }
 
@@ -209,12 +232,12 @@ function eventTableMarkup(events) {
           .map(
             (event) => `
               <tr>
-                <td><span class="table-date">${event.month} ${event.day}</span></td>
+                <td><span class="table-date">${event.month || "TBD"} ${event.day || "--"}</span></td>
                 <td>${event.title}</td>
-                <td>${event.category}</td>
-                <td>${event.location}</td>
-                <td>${event.time}</td>
-                <td><button type="button" class="table-action">${event.actionLabel}</button></td>
+                <td>${event.category || "Campus activity"}</td>
+                <td>${event.location || "Location pending"}</td>
+                <td>${event.time || "TBD"}</td>
+                <td><button type="button" class="table-action">${event.actionLabel || "View"}</button></td>
               </tr>
             `,
           )
@@ -276,27 +299,29 @@ function setupInstitutionBranding() {
       window.localStorage.setItem("uniHubInstitutionImage", pendingImage);
     }
 
-    if (titleInput && titleInput.value.trim()) {
+    if (titleInput?.value.trim()) {
       window.localStorage.setItem("uniHubInstitutionTitle", titleInput.value.trim());
     }
 
-    if (captionInput && captionInput.value.trim()) {
+    if (captionInput?.value.trim()) {
       window.localStorage.setItem("uniHubInstitutionCaption", captionInput.value.trim());
     }
 
     loadInstitutionBranding();
+    setBrandingMessage("Homepage branding saved.");
   });
 }
 
 async function renderHome() {
   const [events, clubs] = await Promise.all([fetchJson("/api/events"), fetchJson("/api/clubs")]);
+
   const heroEvents = document.getElementById("hero-events");
   const heroClubs = document.getElementById("hero-clubs");
   const phoneEvents = document.getElementById("phone-events");
 
   if (heroEvents) {
     heroEvents.innerHTML = events.length
-      ? events.slice(0, 3).map(heroEventMarkup).join("")
+      ? events.slice(0, 3).map(previewEventMarkup).join("")
       : emptyStateMarkup("No events uploaded yet.");
   }
 
@@ -308,25 +333,7 @@ async function renderHome() {
 
   if (phoneEvents) {
     phoneEvents.innerHTML = events.length
-      ? events
-          .slice(0, 2)
-          .map(
-            (event) => `
-              <article class="phone-card">
-                <div class="mini-date featured">
-                  <span>${event.month}</span>
-                  <strong>${event.day}</strong>
-                </div>
-                <div>
-                  <h4>${event.title}</h4>
-                  <div class="mini-bars">
-                    <span></span><span></span>
-                  </div>
-                </div>
-              </article>
-            `,
-          )
-          .join("")
+      ? events.slice(0, 2).map(mobileEventMarkup).join("")
       : emptyStateMarkup("No events yet.");
   }
 }
@@ -339,18 +346,23 @@ async function renderDashboard() {
     fetchJson("/api/announcements"),
   ]);
 
+  const currentUser = getCurrentUser();
+  const dashboardGreeting = document.getElementById("dashboard-greeting");
   const eventsTable = document.getElementById("events-table");
   const clubsList = document.getElementById("clubs-list");
   const announcementList = document.getElementById("announcement-list");
   const dashboardStats = document.getElementById("dashboard-stats");
-  const dashboardGreeting = document.getElementById("dashboard-greeting");
-  const currentUser = getCurrentUser();
 
-  if (dashboardGreeting && currentUser?.name) {
-    dashboardGreeting.textContent = `Welcome back, ${currentUser.name}.`;
+  if (dashboardGreeting) {
+    dashboardGreeting.textContent = currentUser?.name
+      ? `Welcome back, ${currentUser.name}.`
+      : "Welcome back.";
   }
 
-  if (eventsTable) eventsTable.innerHTML = eventTableMarkup(events);
+  if (eventsTable) {
+    eventsTable.innerHTML = eventTableMarkup(events);
+  }
+
   if (clubsList) {
     clubsList.innerHTML = clubs.length
       ? clubs.map(clubMarkup).join("")
@@ -384,23 +396,32 @@ async function renderProfile() {
   }
 
   profileCard.innerHTML = `
-    <div class="profile-hero">
-      <div class="profile-avatar">${user.name[0]}</div>
-      <div>
-        <p class="eyebrow">${user.role}</p>
-        <h1>${user.name}</h1>
-        <p>${user.department} • ${user.year}</p>
+    <article class="surface-card profile-panel">
+      <div class="profile-hero">
+        <div class="profile-avatar">${user.name.slice(0, 1).toUpperCase()}</div>
+        <div>
+          <p class="eyebrow">${user.role || "Student"}</p>
+          <h1>${user.name}</h1>
+          <p>${user.department || "Department pending"}${user.year ? ` • ${user.year}` : ""}</p>
+        </div>
       </div>
-    </div>
-    <div class="profile-grid">
-      ${statMarkup("RSVPs", user.rsvps)}
-      ${statMarkup("Check-ins", user.checkIns)}
-      ${statMarkup("Joined Clubs", user.clubs.length)}
-    </div>
-    <div class="joined-clubs">
-      <h3>Joined Clubs</h3>
-      ${user.clubs.map((club) => `<span>${club}</span>`).join("")}
-    </div>
+      <div class="stat-grid stat-grid-compact">
+        ${statMarkup("RSVPs", user.rsvps || 0)}
+        ${statMarkup("Check-ins", user.checkIns || 0)}
+        ${statMarkup("Joined Clubs", Array.isArray(user.clubs) ? user.clubs.length : 0)}
+        ${statMarkup("Student ID", user.studentId || "Not set")}
+      </div>
+      <div>
+        <p class="eyebrow">Joined Clubs</p>
+        <div class="joined-clubs">
+          ${
+            Array.isArray(user.clubs) && user.clubs.length
+              ? user.clubs.map((club) => `<span>${club}</span>`).join("")
+              : '<span>No club memberships yet</span>'
+          }
+        </div>
+      </div>
+    </article>
   `;
 }
 
@@ -416,12 +437,12 @@ async function renderAdmin() {
   const adminClubs = document.getElementById("admin-clubs");
 
   if (adminStats) {
-    adminStats.innerHTML = `
-      ${statMarkup("RSVPs Recorded", stats.rsvps)}
-      ${statMarkup("Monthly Events", stats.eventsThisMonth)}
-      ${statMarkup("Check-Ins", stats.checkIns)}
-      ${statMarkup("Active Clubs", stats.clubsActive)}
-    `;
+    adminStats.innerHTML = [
+      statMarkup("RSVPs Recorded", stats.rsvps),
+      statMarkup("Monthly Events", stats.eventsThisMonth),
+      statMarkup("Check-ins", stats.checkIns),
+      statMarkup("Active Clubs", stats.clubsActive),
+    ].join("");
   }
 
   if (adminEvents) {
@@ -431,8 +452,8 @@ async function renderAdmin() {
             (event) => `
               <article class="announcement-card">
                 <h4>${event.title}</h4>
-                <p>${event.date} • ${event.location}</p>
-                <span class="status-tag">${event.status}</span>
+                <p>${event.date || "Date pending"}${event.location ? ` • ${event.location}` : ""}</p>
+                <span class="status-tag">${event.status || "Scheduled"}</span>
               </article>
             `,
           )
@@ -452,8 +473,15 @@ if (setupAuthFlows()) {
     loadInstitutionBranding();
     renderHome();
   }
-  if (page === "dashboard") renderDashboard();
-  if (page === "profile") renderProfile();
+
+  if (page === "dashboard") {
+    renderDashboard();
+  }
+
+  if (page === "profile") {
+    renderProfile();
+  }
+
   if (page === "admin") {
     setupInstitutionBranding();
     renderAdmin();

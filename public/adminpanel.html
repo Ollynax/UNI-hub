@@ -7,73 +7,86 @@
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
-      href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700;800&family=Space+Grotesk:wght@500;700&display=swap"
+      href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Space+Grotesk:wght@500;700&display=swap"
       rel="stylesheet"
     />
     <link rel="stylesheet" href="/style.css" />
   </head>
-  <body data-page="admin">
+  <body data-page="admin" class="app-page">
     <header class="site-header">
-      <div class="brand">
-        <div class="brand-mark">U</div>
-        <div>
-          <p class="eyebrow">Organizer Tools</p>
-          <a href="/" class="brand-name">UNI Hub Admin</a>
-        </div>
+      <div class="shell topbar">
+        <a href="/" class="brand">
+          <span class="brand-mark">U</span>
+          <span>
+            <span class="eyebrow">Institution Workspace</span>
+            <strong class="brand-name">UNI Hub Admin</strong>
+          </span>
+        </a>
+        <nav class="site-nav">
+          <a href="/dashboard">Dashboard</a>
+          <a href="/adminpanel" class="active-link">Admin</a>
+          <a href="/login" class="button secondary" id="logout-link">Log Out</a>
+        </nav>
       </div>
-      <nav class="top-nav">
-        <a href="/dashboard">Dashboard</a>
-        <a href="/adminpanel" class="active-link">Admin</a>
-        <a href="/login" class="button ghost" id="logout-link">Log Out</a>
-      </nav>
     </header>
 
-    <main class="dashboard-shell">
+    <main class="shell app-shell">
+      <section class="page-hero surface-card">
+        <div>
+          <p class="eyebrow">Admin Workspace</p>
+          <h1>Institution presentation and activity oversight.</h1>
+          <p>
+            Manage branding for the landing page while monitoring platform activity,
+            event status, and club engagement.
+          </p>
+        </div>
+      </section>
+
       <section class="dashboard-grid admin-grid">
-        <article class="panel wide">
-          <div class="panel-header">
-            <h3>Institution Landing Image</h3>
+        <article class="surface-card span-7">
+          <div class="card-heading">
+            <h2>Landing Page Branding</h2>
           </div>
           <div class="admin-upload">
             <div class="admin-upload-copy">
-              <p>Upload a campus or institution image to appear on the landing page.</p>
               <label for="institution-title">Institution Name</label>
               <input id="institution-title" type="text" placeholder="University Name" />
-              <label for="institution-caption-input">Image Caption</label>
-              <input id="institution-caption-input" type="text" placeholder="Short homepage caption" />
+              <label for="institution-caption-input">Homepage Caption</label>
+              <input id="institution-caption-input" type="text" placeholder="Short institutional introduction" />
               <label for="institution-image-input">Institution Image</label>
               <input id="institution-image-input" type="file" accept="image/*" />
               <button type="button" class="button" id="save-institution-branding">Save Homepage Branding</button>
+              <p id="branding-message" class="helper-note"></p>
             </div>
             <div class="admin-upload-preview">
               <img
                 id="admin-institution-preview"
-                src="https://images.unsplash.com/photo-1562774053-701939374585?auto=format&fit=crop&w=1200&q=80"
+                src="https://images.unsplash.com/photo-1562774053-701939374585?auto=format&fit=crop&w=1600&q=80"
                 alt="Institution preview"
               />
             </div>
           </div>
         </article>
 
-        <article class="panel wide">
-          <div class="panel-header">
-            <h3>Performance Snapshot</h3>
+        <article class="surface-card span-5">
+          <div class="card-heading">
+            <h2>Platform Snapshot</h2>
           </div>
-          <div id="admin-stats" class="stats-strip large"></div>
+          <div id="admin-stats" class="stat-grid stat-grid-compact"></div>
         </article>
 
-        <article class="panel">
-          <div class="panel-header">
-            <h3>Event Status Board</h3>
+        <article class="surface-card span-6">
+          <div class="card-heading">
+            <h2>Event Status Board</h2>
           </div>
-          <div id="admin-events" class="announcement-list"></div>
+          <div id="admin-events" class="stack-list"></div>
         </article>
 
-        <article class="panel">
-          <div class="panel-header">
-            <h3>Club Engagement</h3>
+        <article class="surface-card span-6">
+          <div class="card-heading">
+            <h2>Club Engagement</h2>
           </div>
-          <div id="admin-clubs" class="club-list"></div>
+          <div id="admin-clubs" class="stack-list"></div>
         </article>
       </section>
     </main>

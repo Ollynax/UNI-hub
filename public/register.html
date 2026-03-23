@@ -7,17 +7,31 @@
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
-      href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700;800&family=Space+Grotesk:wght@500;700&display=swap"
+      href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Space+Grotesk:wght@500;700&display=swap"
       rel="stylesheet"
     />
     <link rel="stylesheet" href="/style.css" />
   </head>
-  <body data-page="register" class="alt-page">
-    <main class="auth-shell">
-      <section class="auth-card wide-card">
-        <div>
-          <p class="eyebrow">Join the Platform</p>
-          <h1>Create your UNI Hub account</h1>
+  <body data-page="register" class="auth-page">
+    <main class="shell auth-layout">
+      <section class="auth-aside surface-card">
+        <p class="eyebrow">Create an Account</p>
+        <h1>Join your institution’s UNI Hub workspace.</h1>
+        <p>
+          Register to access the dashboard, participate in events, discover clubs,
+          and manage your student activity profile.
+        </p>
+        <div class="auth-points">
+          <span>Single student activity workspace</span>
+          <span>Professional event and club access</span>
+          <span>Personalized dashboard experience</span>
+        </div>
+      </section>
+
+      <section class="auth-card surface-card wide-auth-card">
+        <div class="auth-header">
+          <p class="eyebrow">Register</p>
+          <h2>Create your UNI Hub account</h2>
         </div>
         <form class="auth-form grid-form" id="register-form">
           <label>
@@ -29,8 +43,8 @@
             <input type="text" name="studentId" placeholder="UNI-2026-014" />
           </label>
           <label>
-            Email
-            <input type="email" name="email" placeholder="alex@campus.edu" required />
+            Email Address
+            <input type="email" name="email" placeholder="name@institution.edu" required />
           </label>
           <label>
             Department
@@ -44,13 +58,13 @@
             Password
             <input type="password" name="password" placeholder="Create a password" required />
           </label>
-          <label>
+          <label class="span-2">
             Confirm Password
             <input type="password" name="confirmPassword" placeholder="Repeat password" required />
           </label>
           <button type="submit" class="button full span-2">Create Account</button>
         </form>
-        <p class="auth-note auth-error" id="auth-message"></p>
+        <p class="auth-error" id="auth-message"></p>
       </section>
     </main>
     <script src="/script.js"></script>
