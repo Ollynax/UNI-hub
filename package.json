@@ -1,0 +1,12 @@
+{
+  "name": "uni-hub",
+  "version": "1.0.0",
+  "description": "Campus event and club management website",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "dependencies": {
+    "mongodb": "^6.17.0"
+  }
+}

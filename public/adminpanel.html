@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>UNI Hub | Admin Panel</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700;800&family=Space+Grotesk:wght@500;700&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="/style.css" />
+  </head>
+  <body data-page="admin">
+    <header class="site-header">
+      <div class="brand">
+        <div class="brand-mark">U</div>
+        <div>
+          <p class="eyebrow">Organizer Tools</p>
+          <a href="/" class="brand-name">UNI Hub Admin</a>
+        </div>
+      </div>
+      <nav class="top-nav">
+        <a href="/dashboard">Dashboard</a>
+        <a href="/adminpanel" class="active-link">Admin</a>
+      </nav>
+    </header>
+
+    <main class="dashboard-shell">
+      <section class="dashboard-grid admin-grid">
+        <article class="panel wide">
+          <div class="panel-header">
+            <h3>Performance Snapshot</h3>
+          </div>
+          <div id="admin-stats" class="stats-strip large"></div>
+        </article>
+        <article class="panel">
+          <div class="panel-header">
+            <h3>Event Status Board</h3>
+          </div>
+          <div id="admin-events" class="announcement-list"></div>
+        </article>
+        <article class="panel">
+          <div class="panel-header">
+            <h3>Club Engagement</h3>
+          </div>
+          <div id="admin-clubs" class="club-list"></div>
+        </article>
+      </section>
+    </main>
+
+    <script src="/script.js"></script>
+  </body>
+</html>

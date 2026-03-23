@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>UNI Hub | Campus Event & Club Management</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700;800&family=Space+Grotesk:wght@500;700&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="/style.css" />
+  </head>
+  <body data-page="home">
+    <header class="site-header">
+      <div class="brand">
+        <div class="brand-mark">U</div>
+        <div>
+          <p class="eyebrow">Campus Experience Platform</p>
+          <a href="/" class="brand-name">UNI Hub</a>
+        </div>
+      </div>
+      <nav class="top-nav">
+        <a href="/dashboard">Dashboard</a>
+        <a href="/register">Register</a>
+        <a href="/login" class="button ghost">Log In</a>
+      </nav>
+    </header>
+
+    <main>
+      <section class="hero">
+        <div class="hero-copy">
+          <p class="hero-tag">Campus Event & Club Management System</p>
+          <h1>Run student life from one bold, modern dashboard.</h1>
+          <p class="hero-text">
+            Discover events, join clubs, manage RSVPs, send announcements, and
+            track campus engagement across desktop and mobile.
+          </p>
+          <div class="hero-actions">
+            <a href="/dashboard" class="button">Open Dashboard</a>
+            <a href="/register" class="button secondary">Create Account</a>
+          </div>
+          <div class="hero-metrics">
+            <div>
+              <strong>125</strong>
+              <span>RSVPs tracked</span>
+            </div>
+            <div>
+              <strong>8</strong>
+              <span>Events this month</span>
+            </div>
+            <div>
+              <strong>350</strong>
+              <span>Check-ins completed</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="device-scene">
+          <div class="laptop">
+            <div class="screen">
+              <div class="screen-topbar">
+                <div class="mini-brand"></div>
+                <nav>
+                  <span class="active">Dashboard</span>
+                  <span>Events</span>
+                  <span>Clubs</span>
+                  <span>Announcements</span>
+                </nav>
+                <div class="avatar-pill">Hi, Alex!</div>
+              </div>
+              <div class="screen-grid">
+                <article class="panel">
+                  <div class="panel-header">
+                    <h3>Upcoming Events</h3>
+                  </div>
+                  <div id="hero-events" class="mock-list"></div>
+                </article>
+                <article class="panel">
+                  <div class="panel-header">
+                    <h3>Clubs & Organizations</h3>
+                  </div>
+                  <div id="hero-clubs" class="mock-list clubs"></div>
+                </article>
+                <article class="panel panel-short">
+                  <div class="panel-header">
+                    <h3>Quick Links</h3>
+                  </div>
+                  <div class="quick-actions">
+                    <button class="quick orange">Create Event</button>
+                    <button class="quick green">Join a Club</button>
+                    <button class="quick blue">My RSVPs</button>
+                  </div>
+                </article>
+                <article class="panel panel-short">
+                  <div class="panel-header">
+                    <h3>Statistics</h3>
+                  </div>
+                  <div class="stats-strip">
+                    <div><strong>125</strong><span>RSVPs</span></div>
+                    <div><strong>8</strong><span>Events</span></div>
+                    <div><strong>350</strong><span>Check-ins</span></div>
+                  </div>
+                </article>
+              </div>
+            </div>
+            <div class="laptop-base"></div>
+          </div>
+
+          <div class="phone">
+            <div class="phone-notch"></div>
+            <div class="phone-content">
+              <div class="phone-header">Campus Events</div>
+              <input class="phone-search" type="text" value="Search" readonly />
+              <div id="phone-events" class="phone-events"></div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="feature-row">
+        <article class="feature-card">
+          <div class="feature-icon">📅</div>
+          <h3>Event Calendar</h3>
+          <p>Organize your semester with clear scheduling, reminders, and featured listings.</p>
+        </article>
+        <article class="feature-card">
+          <div class="feature-icon">📣</div>
+          <h3>Club Directory</h3>
+          <p>Help students find communities that match their goals, interests, and energy.</p>
+        </article>
+        <article class="feature-card">
+          <div class="feature-icon">✅</div>
+          <h3>RSVP & Check-In</h3>
+          <p>Track attendance with simple flows built for both organizers and attendees.</p>
+        </article>
+        <article class="feature-card">
+          <div class="feature-icon">📊</div>
+          <h3>Notifications & Stats</h3>
+          <p>Keep clubs informed and monitor engagement without digging through spreadsheets.</p>
+        </article>
+      </section>
+    </main>
+
+    <script src="/script.js"></script>
+  </body>
+</html>
