@@ -150,6 +150,12 @@ const server = http.createServer(async (request, response) => {
   const parsedUrl = new URL(request.url, `http://${request.headers.host || "localhost"}`);
   const pathname = parsedUrl.pathname;
 
+  if (pathname === "/healthz") {
+    response.writeHead(200, { "Content-Type": "application/json; charset=utf-8" });
+    response.end(JSON.stringify({ ok: true }));
+    return;
+  }
+
   if (pathname === "/api/events") return sendJson(response, await readCollection("events", events));
   if (pathname === "/api/clubs") return sendJson(response, await readCollection("clubs", clubs));
   if (pathname === "/api/users/me") {
