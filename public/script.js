@@ -3,6 +3,62 @@ async function fetchJson(url) {
   return response.json();
 }
 
+const page = document.body.dataset.page;
+const protectedPages = new Set(["dashboard", "profile", "admin"]);
+
+function isAuthenticated() {
+  return window.localStorage.getItem("uniHubAuth") === "true";
+}
+
+function signIn() {
+  window.localStorage.setItem("uniHubAuth", "true");
+  window.location.href = "/dashboard";
+}
+
+function signOut() {
+  window.localStorage.removeItem("uniHubAuth");
+  window.location.href = "/login";
+}
+
+function setupAuthFlows() {
+  if (protectedPages.has(page) && !isAuthenticated()) {
+    window.location.href = "/login";
+    return false;
+  }
+
+  if ((page === "login" || page === "register") && isAuthenticated()) {
+    window.location.href = "/dashboard";
+    return false;
+  }
+
+  const loginForm = document.getElementById("login-form");
+  const registerForm = document.getElementById("register-form");
+  const logoutLink = document.getElementById("logout-link");
+
+  if (loginForm) {
+    loginForm.addEventListener("submit", (event) => {
+      event.preventDefault();
+      signIn();
+    });
+  }
+
+  if (registerForm) {
+    registerForm.addEventListener("submit", (event) => {
+      event.preventDefault();
+      signIn();
+    });
+  }
+
+  if (logoutLink) {
+    logoutLink.addEventListener("click", (event) => {
+      event.preventDefault();
+      signOut();
+    });
+  }
+
+  return true;
+}
+
 function clubIcon(icon) {
   const icons = {
     camera: "📷",
@@ -202,9 +258,9 @@ async function renderAdmin() {
   if (adminClubs) adminClubs.innerHTML = clubs.map(clubMarkup).join("");
 }
 
-const page = document.body.dataset.page;
-
-if (page === "home") renderHome();
-if (page === "dashboard") renderDashboard();
-if (page === "profile") renderProfile();
-if (page === "admin") renderAdmin();
+if (setupAuthFlows()) {
+  if (page === "home") renderHome();
+  if (page === "dashboard") renderDashboard();
+  if (page === "profile") renderProfile();
+  if (page === "admin") renderAdmin();
+}

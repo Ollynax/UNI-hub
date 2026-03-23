@@ -12,14 +12,14 @@
     />
     <link rel="stylesheet" href="/style.css" />
   </head>
-  <body class="alt-page">
+  <body data-page="register" class="alt-page">
     <main class="auth-shell">
       <section class="auth-card wide-card">
         <div>
           <p class="eyebrow">Join the Platform</p>
           <h1>Create your UNI Hub account</h1>
         </div>
-        <form class="auth-form grid-form">
+        <form class="auth-form grid-form" id="register-form">
           <label>
             Full Name
             <input type="text" placeholder="Alex Morgan" />
@@ -44,9 +44,10 @@
             Confirm Password
             <input type="password" placeholder="Repeat password" />
           </label>
-          <a href="/dashboard" class="button full span-2">Create Account</a>
+          <button type="submit" class="button full span-2">Create Account</button>
         </form>
       </section>
     </main>
+    <script src="/script.js"></script>
   </body>
 </html>

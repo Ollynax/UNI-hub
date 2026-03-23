@@ -22,37 +22,40 @@
         </div>
       </div>
       <nav class="top-nav">
-        <a href="/dashboard">Dashboard</a>
+        <a href="#platform">Platform</a>
+        <a href="#features">Features</a>
+        <a href="#workflow">Workflow</a>
         <a href="/register">Register</a>
         <a href="/login" class="button ghost">Log In</a>
       </nav>
     </header>
 
     <main>
-      <section class="hero">
+      <section class="hero" id="platform">
         <div class="hero-copy">
-          <p class="hero-tag">Campus Event & Club Management System</p>
-          <h1>Run student life from one bold, modern dashboard.</h1>
+          <p class="hero-tag">Campus Event and Club Management System</p>
+          <h1>One professional system for campus events, clubs, and student engagement.</h1>
           <p class="hero-text">
-            Discover events, join clubs, manage RSVPs, send announcements, and
-            track campus engagement across desktop and mobile.
+            UNI Hub gives universities a central place to manage student activities,
+            promote events, organize clubs, publish announcements, and monitor
+            participation across one connected experience.
           </p>
           <div class="hero-actions">
-            <a href="/dashboard" class="button">Open Dashboard</a>
-            <a href="/register" class="button secondary">Create Account</a>
+            <a href="/register" class="button">Get Started</a>
+            <a href="/login" class="button secondary">Log In</a>
           </div>
           <div class="hero-metrics">
             <div>
               <strong>125</strong>
-              <span>RSVPs tracked</span>
+              <span>RSVPs managed</span>
             </div>
             <div>
               <strong>8</strong>
-              <span>Events this month</span>
+              <span>Events active</span>
             </div>
             <div>
               <strong>350</strong>
-              <span>Check-ins completed</span>
+              <span>Check-ins recorded</span>
             </div>
           </div>
         </div>
@@ -88,9 +91,9 @@
                     <h3>Quick Links</h3>
                   </div>
                   <div class="quick-actions">
-                    <button class="quick orange">Create Event</button>
-                    <button class="quick green">Join a Club</button>
-                    <button class="quick blue">My RSVPs</button>
+                    <button type="button" class="quick orange">Create Event</button>
+                    <button type="button" class="quick green">Join a Club</button>
+                    <button type="button" class="quick blue">My RSVPs</button>
                   </div>
                 </article>
                 <article class="panel panel-short">
@@ -119,27 +122,111 @@
         </div>
       </section>
 
-      <section class="feature-row">
+      <section class="proof-strip">
+        <article>
+          <span>For Students</span>
+          <strong>Discover events, follow clubs, and manage participation from one account.</strong>
+        </article>
+        <article>
+          <span>For Organizers</span>
+          <strong>Create activities, share updates, and track turnout without manual overhead.</strong>
+        </article>
+        <article>
+          <span>For Institutions</span>
+          <strong>Bring visibility, consistency, and reporting to student life operations.</strong>
+        </article>
+      </section>
+
+      <section class="feature-row" id="features">
         <article class="feature-card">
-          <div class="feature-icon">📅</div>
-          <h3>Event Calendar</h3>
-          <p>Organize your semester with clear scheduling, reminders, and featured listings.</p>
+          <div class="feature-icon feature-code">01</div>
+          <h3>Event Management</h3>
+          <p>Create and publish campus events with schedules, venues, categories, and attendance actions.</p>
         </article>
         <article class="feature-card">
-          <div class="feature-icon">📣</div>
+          <div class="feature-icon feature-code">02</div>
           <h3>Club Directory</h3>
-          <p>Help students find communities that match their goals, interests, and energy.</p>
+          <p>Organize student organizations in a clear directory that helps users find the right communities.</p>
         </article>
         <article class="feature-card">
-          <div class="feature-icon">✅</div>
-          <h3>RSVP & Check-In</h3>
-          <p>Track attendance with simple flows built for both organizers and attendees.</p>
+          <div class="feature-icon feature-code">03</div>
+          <h3>RSVP and Check-In</h3>
+          <p>Support the full attendance flow from registration and RSVP through to event-day check-in.</p>
         </article>
         <article class="feature-card">
-          <div class="feature-icon">📊</div>
-          <h3>Notifications & Stats</h3>
-          <p>Keep clubs informed and monitor engagement without digging through spreadsheets.</p>
+          <div class="feature-icon feature-code">04</div>
+          <h3>Announcements and Reporting</h3>
+          <p>Keep students informed and give administrators visibility into participation and activity trends.</p>
         </article>
+      </section>
+
+      <section class="info-section" id="workflow">
+        <div class="section-heading">
+          <p class="eyebrow">How It Works</p>
+          <h2>Built around the real workflow of student engagement.</h2>
+          <p>
+            UNI Hub supports the key stages of campus activity management, from
+            publishing events to measuring turnout after the event ends.
+          </p>
+        </div>
+        <div class="workflow-grid">
+          <article class="workflow-step">
+            <span class="workflow-number">1</span>
+            <h3>Publish</h3>
+            <p>Set up events, update club information, and share details in a structured format.</p>
+          </article>
+          <article class="workflow-step">
+            <span class="workflow-number">2</span>
+            <h3>Promote</h3>
+            <p>Use announcements and dashboard visibility to help students discover what matters to them.</p>
+          </article>
+          <article class="workflow-step">
+            <span class="workflow-number">3</span>
+            <h3>Track</h3>
+            <p>Monitor RSVP activity, turnout, and check-ins through one connected admin view.</p>
+          </article>
+          <article class="workflow-step">
+            <span class="workflow-number">4</span>
+            <h3>Improve</h3>
+            <p>Review engagement signals and use them to plan stronger student programs over time.</p>
+          </article>
+        </div>
+      </section>
+
+      <section class="info-section">
+        <div class="section-heading">
+          <p class="eyebrow">Why UNI Hub</p>
+          <h2>A cleaner, more reliable digital front door for student life.</h2>
+        </div>
+        <div class="benefit-grid">
+          <article class="benefit-card">
+            <h3>Centralized operations</h3>
+            <p>Keep events, clubs, attendance, and announcements in one platform instead of scattered tools.</p>
+          </article>
+          <article class="benefit-card">
+            <h3>Better student visibility</h3>
+            <p>Help students quickly understand what is happening on campus and how to get involved.</p>
+          </article>
+          <article class="benefit-card">
+            <h3>Faster coordination</h3>
+            <p>Reduce admin friction with organized listings, simpler actions, and easier communication.</p>
+          </article>
+          <article class="benefit-card">
+            <h3>Actionable reporting</h3>
+            <p>Use participation metrics to support better planning, stronger clubs, and better event delivery.</p>
+          </article>
+        </div>
+      </section>
+
+      <section class="cta-banner">
+        <div>
+          <p class="eyebrow">Ready to Start</p>
+          <h2>Give your campus community one place to connect, participate, and stay informed.</h2>
+        </div>
+        <div class="hero-actions">
+          <a href="/register" class="button">Create Account</a>
+          <a href="/login" class="button secondary">Access Existing Account</a>
+        </div>
       </section>
     </main>
 

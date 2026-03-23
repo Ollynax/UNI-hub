@@ -531,6 +531,47 @@ input {
   padding: 6px 5vw 64px;
 }
 
+.proof-strip,
+.workflow-grid,
+.benefit-grid {
+  display: grid;
+  gap: 20px;
+}
+
+.proof-strip {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  padding: 0 5vw 48px;
+}
+
+.proof-strip article,
+.workflow-step,
+.benefit-card,
+.cta-banner {
+  background: rgba(255, 255, 255, 0.8);
+  border: 1px solid rgba(255, 255, 255, 0.9);
+  box-shadow: var(--shadow);
+}
+
+.proof-strip article {
+  padding: 22px 24px;
+  border-radius: 20px;
+}
+
+.proof-strip span {
+  display: block;
+  margin-bottom: 10px;
+  color: var(--primary);
+  font-size: 0.82rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.proof-strip strong {
+  font-size: 1.02rem;
+  line-height: 1.5;
+}
+
 .feature-card,
 .welcome-card,
 .auth-card,
@@ -551,6 +592,20 @@ input {
   margin-bottom: 12px;
 }
 
+.feature-code {
+  width: 72px;
+  height: 72px;
+  margin: 0 auto 16px;
+  border-radius: 20px;
+  display: grid;
+  place-items: center;
+  font-family: "Space Grotesk", sans-serif;
+  font-size: 1.2rem;
+  color: var(--primary-dark);
+  background: linear-gradient(180deg, rgba(47, 95, 158, 0.18), rgba(255, 255, 255, 0.95));
+  border: 1px solid rgba(47, 95, 158, 0.12);
+}
+
 .feature-card h3 {
   margin: 0 0 8px;
   font-family: "Space Grotesk", sans-serif;
@@ -564,6 +619,87 @@ input {
 
 .dashboard-shell {
   padding: 0 5vw 54px;
+}
+
+.info-section {
+  padding: 0 5vw 64px;
+}
+
+.section-heading {
+  max-width: 760px;
+  margin-bottom: 28px;
+}
+
+.section-heading h2 {
+  margin: 0 0 12px;
+  font-family: "Space Grotesk", sans-serif;
+  font-size: clamp(2rem, 4vw, 3.2rem);
+  line-height: 1.05;
+}
+
+.section-heading p:last-child {
+  margin: 0;
+  color: var(--muted);
+  line-height: 1.7;
+}
+
+.workflow-grid {
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+
+.workflow-step,
+.benefit-card {
+  border-radius: 24px;
+  padding: 24px;
+}
+
+.workflow-number {
+  width: 42px;
+  height: 42px;
+  border-radius: 999px;
+  display: inline-grid;
+  place-items: center;
+  margin-bottom: 18px;
+  background: rgba(47, 95, 158, 0.12);
+  color: var(--primary-dark);
+  font-family: "Space Grotesk", sans-serif;
+  font-weight: 700;
+}
+
+.workflow-step h3,
+.benefit-card h3,
+.cta-banner h2 {
+  margin: 0 0 10px;
+  font-family: "Space Grotesk", sans-serif;
+}
+
+.workflow-step p,
+.benefit-card p {
+  margin: 0;
+  color: var(--muted);
+  line-height: 1.65;
+}
+
+.benefit-grid {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.cta-banner {
+  margin: 0 5vw 64px;
+  padding: 32px;
+  border-radius: 30px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 24px;
+  background:
+    linear-gradient(135deg, rgba(255, 255, 255, 0.86), rgba(230, 239, 251, 0.96)),
+    radial-gradient(circle at top right, rgba(246, 154, 37, 0.18), transparent 35%);
+}
+
+.cta-banner h2 {
+  font-size: clamp(1.8rem, 3vw, 2.8rem);
+  max-width: 640px;
 }
 
 .dashboard-hero {
@@ -671,9 +807,12 @@ input {
 
 @media (max-width: 1120px) {
   .hero,
+  .proof-strip,
   .feature-row,
   .dashboard-grid,
-  .screen-grid {
+  .screen-grid,
+  .workflow-grid,
+  .benefit-grid {
     grid-template-columns: 1fr;
   }
 
@@ -686,6 +825,11 @@ input {
   .device-scene {
     min-height: auto;
     padding-bottom: 280px;
+  }
+
+  .cta-banner {
+    flex-direction: column;
+    align-items: flex-start;
   }
 }
 

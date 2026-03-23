@@ -12,14 +12,14 @@
     />
     <link rel="stylesheet" href="/style.css" />
   </head>
-  <body class="alt-page">
+  <body data-page="login" class="alt-page">
     <main class="auth-shell">
       <section class="auth-card">
         <div>
           <p class="eyebrow">Welcome Back</p>
           <h1>Sign in to UNI Hub</h1>
         </div>
-        <form class="auth-form">
+        <form class="auth-form" id="login-form">
           <label>
             Email
             <input type="email" placeholder="alex@campus.edu" />
@@ -28,10 +28,11 @@
             Password
             <input type="password" placeholder="Enter your password" />
           </label>
-          <a href="/dashboard" class="button full">Log In</a>
+          <button type="submit" class="button full">Log In</button>
         </form>
         <p class="auth-note">New here? <a href="/register">Create your account</a></p>
       </section>
     </main>
+    <script src="/script.js"></script>
   </body>
 </html>
