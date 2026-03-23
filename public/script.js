@@ -51,6 +51,10 @@ function isAdminUser(user) {
   return (user?.role || "").toLowerCase() === "admin";
 }
 
+function getSignedInHome(user) {
+  return isAdminUser(user) ? "/adminpanel" : "/dashboard";
+}
+
 function setText(id, value) {
   const element = document.getElementById(id);
   if (element) element.textContent = value;
@@ -94,7 +98,7 @@ function setAdminClubMessage(message, status = "success") {
 function signIn(user) {
   window.localStorage.setItem("uniHubAuth", "true");
   setCurrentUser(user);
-  window.location.href = "/dashboard";
+  window.location.href = getSignedInHome(user);
 }
 
 function signOut() {
@@ -137,8 +141,13 @@ async function setupAuthFlows() {
     return false;
   }
 
+  if (page === "dashboard" && isAdminUser(currentUser)) {
+    window.location.href = "/adminpanel";
+    return false;
+  }
+
   if ((page === "login" || page === "register") && isAuthenticated()) {
-    window.location.href = "/dashboard";
+    window.location.href = getSignedInHome(currentUser);
     return false;
   }
 
