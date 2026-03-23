@@ -120,8 +120,12 @@ async function getLatestCurrentUser() {
   return currentUser;
 }
 
-function setupAuthFlows() {
-  const currentUser = getCurrentUser();
+async function setupAuthFlows() {
+  let currentUser = getCurrentUser();
+
+  if (isAuthenticated() && currentUser?.email) {
+    currentUser = await getLatestCurrentUser();
+  }
 
   if (protectedPages.has(page) && !isAuthenticated()) {
     window.location.href = "/login";
@@ -940,7 +944,7 @@ async function renderJoinClub() {
 }
 
 async function initPage() {
-  if (!setupAuthFlows()) return;
+  if (!(await setupAuthFlows())) return;
 
   setupAdminVisibility();
 
