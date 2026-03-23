@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>UNI Hub | Admin Panel</title>
+    <title>UNI Hub | Admin Control Centre</title>
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
@@ -18,12 +18,13 @@
         <a href="/" class="brand">
           <span class="brand-mark">U</span>
           <span>
-            <span class="eyebrow">Institution Workspace</span>
-            <strong class="brand-name">UNI Hub Admin</strong>
+            <span class="eyebrow">Administrative Workspace</span>
+            <strong class="brand-name">UNI Hub Control Centre</strong>
           </span>
         </a>
         <nav class="site-nav">
           <a href="/dashboard">Dashboard</a>
+          <a href="/profile">Profile</a>
           <a href="/adminpanel" class="active-link">Admin</a>
           <a href="/login" class="button secondary" id="logout-link">Log Out</a>
         </nav>
@@ -33,66 +34,182 @@
     <main class="shell app-shell">
       <section class="page-hero surface-card">
         <div>
-          <p class="eyebrow">Admin Workspace</p>
-          <h1>Institution presentation and activity oversight.</h1>
+          <p class="eyebrow">Admin Control Centre</p>
+          <h1>Manage the full UNI Hub platform from one separate workspace.</h1>
           <p>
-            Manage branding for the landing page while monitoring platform activity,
-            event status, and club engagement.
+            Publish events, manage announcements, review clubs, update institution branding,
+            and monitor the current user directory from a dedicated admin environment.
           </p>
         </div>
-        <div class="page-meta">
-          <span class="role-chip">Admin Access</span>
-          <span>Roles are controlled directly from the database</span>
+        <div class="page-meta column">
+          <span class="role-chip">Admin Only</span>
+          <span id="admin-account-name">Administrator</span>
+          <span id="admin-account-email">Signed-in admin account</span>
         </div>
       </section>
 
-      <section class="dashboard-grid admin-grid">
-        <article class="surface-card span-7">
-          <div class="card-heading">
-            <h2>Landing Page Branding</h2>
+      <section class="admin-workspace">
+        <aside class="surface-card admin-sidebar">
+          <div>
+            <p class="eyebrow">Workspace Navigation</p>
+            <h2>Manage everything in one flow.</h2>
+            <p>
+              This panel is separate from the student dashboard so administrative tasks stay
+              organized and easier to operate.
+            </p>
           </div>
-          <div class="admin-upload">
-            <div class="admin-upload-copy">
-              <p class="helper-note">Admin access depends on the user role stored in MongoDB. Roles are not editable in the UI.</p>
-              <label for="institution-title">Institution Name</label>
-              <input id="institution-title" type="text" placeholder="University Name" />
-              <label for="institution-caption-input">Homepage Caption</label>
-              <input id="institution-caption-input" type="text" placeholder="Short institutional introduction" />
-              <label for="institution-image-input">Institution Image</label>
-              <input id="institution-image-input" type="file" accept="image/*" />
-              <button type="button" class="button" id="save-institution-branding">Save Homepage Branding</button>
-              <p id="branding-message" class="helper-note"></p>
+
+          <nav class="admin-sidebar-nav">
+            <a href="#admin-overview">Overview</a>
+            <a href="#admin-branding">Branding</a>
+            <a href="#admin-events-section">Events</a>
+            <a href="#admin-announcements-section">Announcements</a>
+            <a href="#admin-clubs-section">Clubs</a>
+            <a href="#admin-users-section">Users</a>
+          </nav>
+
+          <p class="helper-note">
+            User roles stay controlled in MongoDB. This workspace manages platform content,
+            visibility, and presentation.
+          </p>
+        </aside>
+
+        <div class="admin-content">
+          <section id="admin-overview" class="surface-card admin-section-card">
+            <div class="card-heading">
+              <h2>Platform Overview</h2>
+              <span class="label">Live Snapshot</span>
             </div>
-            <div class="admin-upload-preview">
-              <img
-                id="admin-institution-preview"
-                src="https://images.unsplash.com/photo-1562774053-701939374585?auto=format&fit=crop&w=1600&q=80"
-                alt="Institution preview"
-              />
+            <div id="admin-stats" class="stat-grid"></div>
+          </section>
+
+          <section id="admin-branding" class="surface-card admin-section-card">
+            <div class="card-heading">
+              <h2>Homepage Branding</h2>
+              <span class="label">Institution Identity</span>
             </div>
-          </div>
-        </article>
+            <div class="admin-upload">
+              <div class="admin-upload-copy">
+                <label for="institution-title">Institution Name</label>
+                <input id="institution-title" type="text" placeholder="University Name" />
 
-        <article class="surface-card span-5">
-          <div class="card-heading">
-            <h2>Platform Snapshot</h2>
-          </div>
-          <div id="admin-stats" class="stat-grid stat-grid-compact"></div>
-        </article>
+                <label for="institution-caption-input">Homepage Caption</label>
+                <textarea
+                  id="institution-caption-input"
+                  rows="4"
+                  placeholder="Short institutional introduction"
+                ></textarea>
 
-        <article class="surface-card span-6">
-          <div class="card-heading">
-            <h2>Event Status Board</h2>
-          </div>
-          <div id="admin-events" class="stack-list"></div>
-        </article>
+                <label for="institution-image-input">Institution Image</label>
+                <input id="institution-image-input" type="file" accept="image/*" />
 
-        <article class="surface-card span-6">
-          <div class="card-heading">
-            <h2>Club Engagement</h2>
-          </div>
-          <div id="admin-clubs" class="stack-list"></div>
-        </article>
+                <button type="button" class="button" id="save-institution-branding">Save Homepage Branding</button>
+                <p id="branding-message" class="helper-note"></p>
+              </div>
+
+              <div class="admin-upload-preview">
+                <img
+                  id="admin-institution-preview"
+                  src="https://images.unsplash.com/photo-1562774053-701939374585?auto=format&fit=crop&w=1600&q=80"
+                  alt="Institution preview"
+                />
+              </div>
+            </div>
+          </section>
+
+          <section id="admin-events-section" class="surface-card admin-section-card">
+            <div class="card-heading">
+              <h2>Event Management</h2>
+              <span class="label">Publish and Maintain</span>
+            </div>
+
+            <form id="admin-event-form" class="auth-form admin-form-grid">
+              <label>
+                Event Title
+                <input type="text" name="title" placeholder="Innovation Week Launch" required />
+              </label>
+              <label>
+                Event Date
+                <input type="date" name="date" required />
+              </label>
+              <label>
+                Time
+                <input type="text" name="time" placeholder="10:00 AM - 12:00 PM" />
+              </label>
+              <label>
+                Location
+                <input type="text" name="location" placeholder="Main Auditorium" />
+              </label>
+              <label>
+                Category
+                <input type="text" name="category" placeholder="Academic" />
+              </label>
+              <label>
+                Status
+                <select name="status">
+                  <option value="Scheduled">Scheduled</option>
+                  <option value="Open">Open</option>
+                  <option value="Closed">Closed</option>
+                </select>
+              </label>
+              <label class="span-2">
+                Description
+                <textarea name="description" rows="4" placeholder="Outline the event purpose and audience."></textarea>
+              </label>
+              <button type="submit" class="button span-2">Create Event</button>
+            </form>
+
+            <p id="admin-event-message" class="helper-note"></p>
+            <div id="admin-events" class="stack-list"></div>
+          </section>
+
+          <section id="admin-announcements-section" class="surface-card admin-section-card">
+            <div class="card-heading">
+              <h2>Announcements</h2>
+              <span class="label">Campus Communication</span>
+            </div>
+
+            <form id="admin-announcement-form" class="auth-form admin-form-grid">
+              <label class="span-2">
+                Announcement Title
+                <input type="text" name="title" placeholder="Semester briefing now available" required />
+              </label>
+              <label class="span-2">
+                Detail
+                <textarea name="detail" rows="4" placeholder="Add the key message students should see."></textarea>
+              </label>
+              <button type="submit" class="button span-2">Publish Announcement</button>
+            </form>
+
+            <p id="admin-announcement-message" class="helper-note"></p>
+            <div id="admin-announcements" class="stack-list"></div>
+          </section>
+
+          <section id="admin-clubs-section" class="surface-card admin-section-card">
+            <div class="card-heading">
+              <h2>Club Management</h2>
+              <span class="label">Review and Remove</span>
+            </div>
+            <p class="helper-note">
+              Students can create clubs from their workspace. Admins can review entries here
+              and remove clubs that should not remain active.
+            </p>
+            <p id="admin-club-message" class="helper-note"></p>
+            <div id="admin-clubs" class="stack-list"></div>
+          </section>
+
+          <section id="admin-users-section" class="surface-card admin-section-card">
+            <div class="card-heading">
+              <h2>User Directory</h2>
+              <span class="label">Read Only</span>
+            </div>
+            <p class="helper-note">
+              User roles and account changes remain database-controlled. This directory is here
+              for visibility while permissions stay out of the UI.
+            </p>
+            <div id="admin-users" class="user-directory"></div>
+          </section>
+        </div>
       </section>
     </main>
 

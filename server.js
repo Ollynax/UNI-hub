@@ -63,6 +63,14 @@ const stats = {
 };
 
 const announcements = [];
+const defaultBranding = {
+  title: "Your Institution, Presented Clearly",
+  caption: "Administrators can manage the institution image, title, and homepage message from the admin workspace.",
+  image: "https://images.unsplash.com/photo-1562774053-701939374585?auto=format&fit=crop&w=1600&q=80",
+};
+let branding = { ...defaultBranding };
+
+const monthLabels = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
 
 function sanitizeUser(user) {
   if (!user) return null;
@@ -92,6 +100,42 @@ function sanitizeClub(club) {
     contactEmail: club.contactEmail || "",
     category: club.category || "",
     createdBy: club.createdBy || "",
+  };
+}
+
+function sanitizeEvent(event) {
+  if (!event) return null;
+
+  return {
+    id: event.id || event._id?.toString() || null,
+    title: event.title || "",
+    date: event.date || "",
+    month: event.month || "",
+    day: event.day || "",
+    category: event.category || "",
+    location: event.location || "",
+    time: event.time || "",
+    description: event.description || "",
+    actionLabel: event.actionLabel || "View",
+    status: event.status || "Scheduled",
+  };
+}
+
+function sanitizeAnnouncement(item) {
+  if (!item) return null;
+
+  return {
+    id: item.id || item._id?.toString() || null,
+    title: item.title || "",
+    detail: item.detail || "",
+  };
+}
+
+function sanitizeBranding(item) {
+  return {
+    title: item?.title?.trim() || defaultBranding.title,
+    caption: item?.caption?.trim() || defaultBranding.caption,
+    image: item?.image?.trim() || defaultBranding.image,
   };
 }
 
@@ -241,6 +285,99 @@ async function createClub(clubData) {
   return localClub;
 }
 
+async function ensureAdminUser(email) {
+  const user = await findUserByEmail(email);
+  if (!user || (user.role || "").toLowerCase() !== "admin") {
+    throw new Error("Admin access required");
+  }
+  return user;
+}
+
+function buildEventRecord(eventData) {
+  const parsedDate = eventData.date ? new Date(eventData.date) : null;
+  const isValidDate = parsedDate && !Number.isNaN(parsedDate.getTime());
+
+  return {
+    title: eventData.title.trim(),
+    date: eventData.date || "",
+    month: isValidDate ? monthLabels[parsedDate.getUTCMonth()] : "TBD",
+    day: isValidDate ? String(parsedDate.getUTCDate()).padStart(2, "0") : "--",
+    category: eventData.category?.trim() || "",
+    location: eventData.location?.trim() || "",
+    time: eventData.time?.trim() || "",
+    description: eventData.description?.trim() || "",
+    actionLabel: eventData.actionLabel?.trim() || "View",
+    status: eventData.status?.trim() || "Scheduled",
+  };
+}
+
+async function createEvent(eventData) {
+  const nextEvent = buildEventRecord(eventData);
+
+  if (db) {
+    const result = await db.collection("events").insertOne(nextEvent);
+    return { ...nextEvent, _id: result.insertedId };
+  }
+
+  const localEvent = { ...nextEvent, id: Date.now().toString() };
+  events.push(localEvent);
+  return localEvent;
+}
+
+async function createAnnouncement(data) {
+  const nextAnnouncement = {
+    title: data.title.trim(),
+    detail: data.detail?.trim() || "",
+  };
+
+  if (db) {
+    const result = await db.collection("announcements").insertOne(nextAnnouncement);
+    return { ...nextAnnouncement, _id: result.insertedId };
+  }
+
+  const localAnnouncement = { ...nextAnnouncement, id: Date.now().toString() };
+  announcements.push(localAnnouncement);
+  return localAnnouncement;
+}
+
+async function deleteRecord(collectionName, id, fallback) {
+  if (db) {
+    const { ObjectId } = require("mongodb");
+    await db.collection(collectionName).deleteOne({ _id: new ObjectId(id) });
+    return;
+  }
+
+  const index = fallback.findIndex((item) => String(item.id) === String(id));
+  if (index !== -1) {
+    fallback.splice(index, 1);
+  }
+}
+
+async function getBranding() {
+  if (db) {
+    const record = await db.collection("settings").findOne({ key: "branding" });
+    return sanitizeBranding(record);
+  }
+
+  return sanitizeBranding(branding);
+}
+
+async function saveBranding(data) {
+  const nextBranding = sanitizeBranding(data);
+
+  if (db) {
+    await db.collection("settings").updateOne(
+      { key: "branding" },
+      { $set: { key: "branding", ...nextBranding } },
+      { upsert: true },
+    );
+    return nextBranding;
+  }
+
+  branding = nextBranding;
+  return branding;
+}
+
 async function joinClubMembership(clubId, userEmail) {
   const normalizedEmail = (userEmail || "").trim().toLowerCase();
   if (!normalizedEmail) {
@@ -347,7 +484,42 @@ const server = http.createServer(async (request, response) => {
     }
   }
 
-  if (pathname === "/api/events") return sendJson(response, await readCollection("events", events));
+  if (pathname === "/api/events" && request.method === "GET") {
+    const eventItems = await readCollection("events", events);
+    return sendJson(response, eventItems.map(sanitizeEvent));
+  }
+
+  if (pathname === "/api/events" && request.method === "POST") {
+    try {
+      const body = await parseRequestBody(request);
+      await ensureAdminUser(body.actorEmail);
+
+      if (!body.title) {
+        return sendJson(response, { error: "Event title is required" }, 400);
+      }
+
+      const createdEvent = await createEvent(body);
+      return sendJson(response, { event: sanitizeEvent(createdEvent) }, 201);
+    } catch (error) {
+      const statusCode = error.message === "Admin access required" ? 403 : 400;
+      return sendJson(response, { error: error.message }, statusCode);
+    }
+  }
+
+  if (pathname.startsWith("/api/events/") && request.method === "DELETE") {
+    try {
+      const body = await parseRequestBody(request);
+      await ensureAdminUser(body.actorEmail);
+
+      const eventId = pathname.split("/").pop();
+      await deleteRecord("events", eventId, events);
+      return sendJson(response, { ok: true });
+    } catch (error) {
+      const statusCode = error.message === "Admin access required" ? 403 : 400;
+      return sendJson(response, { error: error.message }, statusCode);
+    }
+  }
+
   if (pathname === "/api/clubs" && request.method === "GET") {
     const clubItems = await readCollection("clubs", clubs);
     return sendJson(response, clubItems.map(sanitizeClub));
@@ -378,13 +550,95 @@ const server = http.createServer(async (request, response) => {
     }
   }
 
+  if (pathname.startsWith("/api/clubs/") && request.method === "DELETE") {
+    try {
+      const body = await parseRequestBody(request);
+      await ensureAdminUser(body.actorEmail);
+
+      const clubId = pathname.split("/").pop();
+      await deleteRecord("clubs", clubId, clubs);
+      return sendJson(response, { ok: true });
+    } catch (error) {
+      const statusCode = error.message === "Admin access required" ? 403 : 400;
+      return sendJson(response, { error: error.message }, statusCode);
+    }
+  }
+
   if (pathname === "/api/users/me") {
+    const requestedEmail = parsedUrl.searchParams.get("email");
+    if (requestedEmail) {
+      const user = await findUserByEmail(requestedEmail);
+      return sendJson(response, sanitizeUser(user));
+    }
+
     const userList = await readCollection("users", users);
-    return sendJson(response, userList[0] || null);
+    return sendJson(response, sanitizeUser(userList[0] || null));
+  }
+
+  if (pathname === "/api/users" && request.method === "GET") {
+    try {
+      const actorEmail = parsedUrl.searchParams.get("email");
+      await ensureAdminUser(actorEmail);
+
+      const userList = await readCollection("users", users);
+      return sendJson(response, userList.map(sanitizeUser));
+    } catch (error) {
+      const statusCode = error.message === "Admin access required" ? 403 : 400;
+      return sendJson(response, { error: error.message }, statusCode);
+    }
   }
   if (pathname === "/api/stats") return sendJson(response, await getStats());
-  if (pathname === "/api/announcements") {
-    return sendJson(response, await readCollection("announcements", announcements));
+
+  if (pathname === "/api/announcements" && request.method === "GET") {
+    const announcementItems = await readCollection("announcements", announcements);
+    return sendJson(response, announcementItems.map(sanitizeAnnouncement));
+  }
+
+  if (pathname === "/api/announcements" && request.method === "POST") {
+    try {
+      const body = await parseRequestBody(request);
+      await ensureAdminUser(body.actorEmail);
+
+      if (!body.title) {
+        return sendJson(response, { error: "Announcement title is required" }, 400);
+      }
+
+      const createdAnnouncement = await createAnnouncement(body);
+      return sendJson(response, { announcement: sanitizeAnnouncement(createdAnnouncement) }, 201);
+    } catch (error) {
+      const statusCode = error.message === "Admin access required" ? 403 : 400;
+      return sendJson(response, { error: error.message }, statusCode);
+    }
+  }
+
+  if (pathname.startsWith("/api/announcements/") && request.method === "DELETE") {
+    try {
+      const body = await parseRequestBody(request);
+      await ensureAdminUser(body.actorEmail);
+
+      const announcementId = pathname.split("/").pop();
+      await deleteRecord("announcements", announcementId, announcements);
+      return sendJson(response, { ok: true });
+    } catch (error) {
+      const statusCode = error.message === "Admin access required" ? 403 : 400;
+      return sendJson(response, { error: error.message }, statusCode);
+    }
+  }
+
+  if (pathname === "/api/branding" && request.method === "GET") {
+    return sendJson(response, await getBranding());
+  }
+
+  if (pathname === "/api/branding" && request.method === "POST") {
+    try {
+      const body = await parseRequestBody(request);
+      await ensureAdminUser(body.actorEmail);
+      const savedBranding = await saveBranding(body);
+      return sendJson(response, { branding: savedBranding });
+    } catch (error) {
+      const statusCode = error.message === "Admin access required" ? 403 : 400;
+      return sendJson(response, { error: error.message }, statusCode);
+    }
   }
 
   const resolvedRoute = routes[pathname];
