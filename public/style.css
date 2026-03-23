@@ -805,6 +805,15 @@ input {
   font-weight: 700;
 }
 
+.empty-state {
+  padding: 20px;
+  border: 1px dashed var(--line);
+  border-radius: 16px;
+  color: var(--muted);
+  background: rgba(47, 95, 158, 0.04);
+  line-height: 1.6;
+}
+
 @media (max-width: 1120px) {
   .hero,
   .proof-strip,

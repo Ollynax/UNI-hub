@@ -54,29 +54,13 @@ const routes = {
 };
 
 const stats = {
-  rsvps: 125,
-  eventsThisMonth: 8,
-  checkIns: 350,
-  clubsActive: clubs.length,
+  rsvps: 0,
+  eventsThisMonth: 0,
+  checkIns: 0,
+  clubsActive: 0,
 };
 
-const announcements = [
-  {
-    id: 1,
-    title: "Volunteer slots open for orientation week",
-    detail: "Sign up before Friday to help with guest check-in and tours.",
-  },
-  {
-    id: 2,
-    title: "New club registration closes soon",
-    detail: "Submit advisor approval and your founding member list this week.",
-  },
-  {
-    id: 3,
-    title: "QR check-in update is live",
-    detail: "Event hosts can now track attendance in real time from mobile.",
-  },
-];
+const announcements = [];
 
 async function connectToDatabase() {
   if (!process.env.MONGODB_URI) return;
@@ -89,7 +73,7 @@ async function connectToDatabase() {
     console.log("Connected to MongoDB");
   } catch (error) {
     db = null;
-    console.warn("MongoDB unavailable, using local sample data.");
+    console.warn("MongoDB unavailable, using local empty data.");
     console.warn(error.message);
   }
 }
@@ -101,7 +85,7 @@ async function readCollection(name, fallback) {
     const collection = await db.collection(name).find({}).toArray();
     return collection.length ? collection : fallback;
   } catch (error) {
-    console.warn(`Failed to read ${name}, using local data.`);
+    console.warn(`Failed to read ${name}, using local empty data.`);
     return fallback;
   }
 }
@@ -116,10 +100,10 @@ async function getStats() {
   ]);
 
   return {
-    rsvps: userItems.reduce((total, user) => total + (user.rsvps || 0), 0) || stats.rsvps,
-    eventsThisMonth: eventItems.length || stats.eventsThisMonth,
-    checkIns: userItems.reduce((total, user) => total + (user.checkIns || 0), 0) || stats.checkIns,
-    clubsActive: clubItems.length || stats.clubsActive,
+    rsvps: userItems.reduce((total, user) => total + (user.rsvps || 0), 0),
+    eventsThisMonth: eventItems.length,
+    checkIns: userItems.reduce((total, user) => total + (user.checkIns || 0), 0),
+    clubsActive: clubItems.length,
   };
 }
 
@@ -160,7 +144,7 @@ const server = http.createServer(async (request, response) => {
   if (pathname === "/api/clubs") return sendJson(response, await readCollection("clubs", clubs));
   if (pathname === "/api/users/me") {
     const userList = await readCollection("users", users);
-    return sendJson(response, userList[0]);
+    return sendJson(response, userList[0] || null);
   }
   if (pathname === "/api/stats") return sendJson(response, await getStats());
   if (pathname === "/api/announcements") {

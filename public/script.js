@@ -100,6 +100,10 @@ function statMarkup(label, value) {
   `;
 }
 
+function emptyStateMarkup(message) {
+  return `<div class="empty-state">${message}</div>`;
+}
+
 function heroEventMarkup(event) {
   return `
     <article class="mock-item">
@@ -119,6 +123,10 @@ function heroEventMarkup(event) {
 }
 
 function eventTableMarkup(events) {
+  if (!events.length) {
+    return emptyStateMarkup("No upcoming events yet. Events will appear here after they are uploaded.");
+  }
+
   return `
     <table class="events-table">
       <thead>
@@ -221,29 +229,40 @@ async function renderHome() {
   const heroClubs = document.getElementById("hero-clubs");
   const phoneEvents = document.getElementById("phone-events");
 
-  if (heroEvents) heroEvents.innerHTML = events.slice(0, 3).map(heroEventMarkup).join("");
-  if (heroClubs) heroClubs.innerHTML = clubs.slice(0, 3).map(clubMarkup).join("");
+  if (heroEvents) {
+    heroEvents.innerHTML = events.length
+      ? events.slice(0, 3).map(heroEventMarkup).join("")
+      : emptyStateMarkup("No events uploaded yet.");
+  }
+
+  if (heroClubs) {
+    heroClubs.innerHTML = clubs.length
+      ? clubs.slice(0, 3).map(clubMarkup).join("")
+      : emptyStateMarkup("No clubs uploaded yet.");
+  }
 
   if (phoneEvents) {
-    phoneEvents.innerHTML = events
-      .slice(1, 3)
-      .map(
-        (event) => `
-          <article class="phone-card">
-            <div class="mini-date featured">
-              <span>${event.month}</span>
-              <strong>${event.day}</strong>
-            </div>
-            <div>
-              <h4>${event.title}</h4>
-              <div class="mini-bars">
-                <span></span><span></span>
-              </div>
-            </div>
-          </article>
-        `,
-      )
-      .join("");
+    phoneEvents.innerHTML = events.length
+      ? events
+          .slice(0, 2)
+          .map(
+            (event) => `
+              <article class="phone-card">
+                <div class="mini-date featured">
+                  <span>${event.month}</span>
+                  <strong>${event.day}</strong>
+                </div>
+                <div>
+                  <h4>${event.title}</h4>
+                  <div class="mini-bars">
+                    <span></span><span></span>
+                  </div>
+                </div>
+              </article>
+            `,
+          )
+          .join("")
+      : emptyStateMarkup("No events yet.");
   }
 }
 
@@ -261,8 +280,17 @@ async function renderDashboard() {
   const dashboardStats = document.getElementById("dashboard-stats");
 
   if (eventsTable) eventsTable.innerHTML = eventTableMarkup(events);
-  if (clubsList) clubsList.innerHTML = clubs.map(clubMarkup).join("");
-  if (announcementList) announcementList.innerHTML = announcements.map(announcementMarkup).join("");
+  if (clubsList) {
+    clubsList.innerHTML = clubs.length
+      ? clubs.map(clubMarkup).join("")
+      : emptyStateMarkup("No clubs available yet.");
+  }
+
+  if (announcementList) {
+    announcementList.innerHTML = announcements.length
+      ? announcements.map(announcementMarkup).join("")
+      : emptyStateMarkup("No announcements have been posted yet.");
+  }
 
   if (dashboardStats) {
     dashboardStats.innerHTML = [
@@ -279,6 +307,11 @@ async function renderProfile() {
   if (!profileCard) return;
 
   const user = await fetchJson("/api/users/me");
+  if (!user) {
+    profileCard.innerHTML = emptyStateMarkup("No profile data is available yet.");
+    return;
+  }
+
   profileCard.innerHTML = `
     <div class="profile-hero">
       <div class="profile-avatar">${user.name[0]}</div>
@@ -321,20 +354,26 @@ async function renderAdmin() {
   }
 
   if (adminEvents) {
-    adminEvents.innerHTML = events
-      .map(
-        (event) => `
-          <article class="announcement-card">
-            <h4>${event.title}</h4>
-            <p>${event.date} • ${event.location}</p>
-            <span class="status-tag">${event.status}</span>
-          </article>
-        `,
-      )
-      .join("");
+    adminEvents.innerHTML = events.length
+      ? events
+          .map(
+            (event) => `
+              <article class="announcement-card">
+                <h4>${event.title}</h4>
+                <p>${event.date} • ${event.location}</p>
+                <span class="status-tag">${event.status}</span>
+              </article>
+            `,
+          )
+          .join("")
+      : emptyStateMarkup("No event records yet.");
   }
 
-  if (adminClubs) adminClubs.innerHTML = clubs.map(clubMarkup).join("");
+  if (adminClubs) {
+    adminClubs.innerHTML = clubs.length
+      ? clubs.map(clubMarkup).join("")
+      : emptyStateMarkup("No club records yet.");
+  }
 }
 
 if (setupAuthFlows()) {
