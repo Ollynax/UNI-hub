@@ -22,14 +22,15 @@
         <form class="auth-form" id="login-form">
           <label>
             Email
-            <input type="email" placeholder="alex@campus.edu" />
+            <input type="email" name="email" placeholder="alex@campus.edu" required />
           </label>
           <label>
             Password
-            <input type="password" placeholder="Enter your password" />
+            <input type="password" name="password" placeholder="Enter your password" required />
           </label>
           <button type="submit" class="button full">Log In</button>
         </form>
+        <p class="auth-note auth-error" id="auth-message"></p>
         <p class="auth-note">New here? <a href="/register">Create your account</a></p>
       </section>
     </main>

@@ -62,6 +62,23 @@ const stats = {
 
 const announcements = [];
 
+function sanitizeUser(user) {
+  if (!user) return null;
+
+  return {
+    id: user.id || user._id?.toString() || null,
+    name: user.name || "",
+    email: user.email || "",
+    role: user.role || "Student",
+    department: user.department || "",
+    year: user.year || "",
+    studentId: user.studentId || "",
+    rsvps: user.rsvps || 0,
+    checkIns: user.checkIns || 0,
+    clubs: Array.isArray(user.clubs) ? user.clubs : [],
+  };
+}
+
 async function connectToDatabase() {
   if (!process.env.MONGODB_URI) return;
 
@@ -107,6 +124,71 @@ async function getStats() {
   };
 }
 
+function parseRequestBody(request) {
+  return new Promise((resolve, reject) => {
+    let body = "";
+
+    request.on("data", (chunk) => {
+      body += chunk.toString();
+      if (body.length > 1_000_000) {
+        reject(new Error("Request body too large"));
+      }
+    });
+
+    request.on("end", () => {
+      if (!body) {
+        resolve({});
+        return;
+      }
+
+      try {
+        resolve(JSON.parse(body));
+      } catch (error) {
+        reject(new Error("Invalid JSON body"));
+      }
+    });
+
+    request.on("error", reject);
+  });
+}
+
+async function findUserByEmail(email) {
+  const normalizedEmail = (email || "").trim().toLowerCase();
+  if (!normalizedEmail) return null;
+
+  if (db) {
+    const user = await db.collection("users").findOne({ email: normalizedEmail });
+    return user || null;
+  }
+
+  return users.find((user) => user.email === normalizedEmail) || null;
+}
+
+async function createUser(userData) {
+  const normalizedEmail = userData.email.trim().toLowerCase();
+  const nextUser = {
+    name: userData.name.trim(),
+    email: normalizedEmail,
+    password: userData.password,
+    studentId: userData.studentId?.trim() || "",
+    department: userData.department?.trim() || "",
+    year: userData.year?.trim() || "",
+    role: "Student",
+    rsvps: 0,
+    checkIns: 0,
+    clubs: [],
+  };
+
+  if (db) {
+    const result = await db.collection("users").insertOne(nextUser);
+    return { ...nextUser, _id: result.insertedId };
+  }
+
+  const localUser = { ...nextUser, id: Date.now() };
+  users.push(localUser);
+  return localUser;
+}
+
 function sendJson(response, payload, statusCode = 200) {
   response.writeHead(statusCode, { "Content-Type": "application/json; charset=utf-8" });
   response.end(JSON.stringify(payload));
@@ -138,6 +220,41 @@ const server = http.createServer(async (request, response) => {
     response.writeHead(200, { "Content-Type": "application/json; charset=utf-8" });
     response.end(JSON.stringify({ ok: true }));
     return;
+  }
+
+  if (pathname === "/api/auth/login" && request.method === "POST") {
+    try {
+      const body = await parseRequestBody(request);
+      const user = await findUserByEmail(body.email);
+
+      if (!user || user.password !== body.password) {
+        return sendJson(response, { error: "Invalid email or password" }, 401);
+      }
+
+      return sendJson(response, { user: sanitizeUser(user) });
+    } catch (error) {
+      return sendJson(response, { error: error.message }, 400);
+    }
+  }
+
+  if (pathname === "/api/auth/register" && request.method === "POST") {
+    try {
+      const body = await parseRequestBody(request);
+
+      if (!body.name || !body.email || !body.password) {
+        return sendJson(response, { error: "Name, email, and password are required" }, 400);
+      }
+
+      const existingUser = await findUserByEmail(body.email);
+      if (existingUser) {
+        return sendJson(response, { error: "An account with that email already exists" }, 409);
+      }
+
+      const createdUser = await createUser(body);
+      return sendJson(response, { user: sanitizeUser(createdUser) }, 201);
+    } catch (error) {
+      return sendJson(response, { error: error.message }, 400);
+    }
   }
 
   if (pathname === "/api/events") return sendJson(response, await readCollection("events", events));

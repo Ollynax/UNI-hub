@@ -22,30 +22,35 @@
         <form class="auth-form grid-form" id="register-form">
           <label>
             Full Name
-            <input type="text" placeholder="Alex Morgan" />
+            <input type="text" name="name" placeholder="Alex Morgan" required />
           </label>
           <label>
             Student ID
-            <input type="text" placeholder="UNI-2026-014" />
+            <input type="text" name="studentId" placeholder="UNI-2026-014" />
           </label>
           <label>
             Email
-            <input type="email" placeholder="alex@campus.edu" />
+            <input type="email" name="email" placeholder="alex@campus.edu" required />
           </label>
           <label>
             Department
-            <input type="text" placeholder="Computer Science" />
+            <input type="text" name="department" placeholder="Computer Science" />
+          </label>
+          <label>
+            Year
+            <input type="text" name="year" placeholder="3rd Year" />
           </label>
           <label>
             Password
-            <input type="password" placeholder="Create a password" />
+            <input type="password" name="password" placeholder="Create a password" required />
           </label>
           <label>
             Confirm Password
-            <input type="password" placeholder="Repeat password" />
+            <input type="password" name="confirmPassword" placeholder="Repeat password" required />
           </label>
           <button type="submit" class="button full span-2">Create Account</button>
         </form>
+        <p class="auth-note auth-error" id="auth-message"></p>
       </section>
     </main>
     <script src="/script.js"></script>

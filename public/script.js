@@ -1,6 +1,12 @@
-async function fetchJson(url) {
-  const response = await fetch(url);
-  return response.json();
+async function fetchJson(url, options) {
+  const response = await fetch(url, options);
+  const data = await response.json();
+
+  if (!response.ok) {
+    throw new Error(data.error || "Request failed");
+  }
+
+  return data;
 }
 
 const page = document.body.dataset.page;
@@ -10,13 +16,29 @@ function isAuthenticated() {
   return window.localStorage.getItem("uniHubAuth") === "true";
 }
 
-function signIn() {
+function getCurrentUser() {
+  const raw = window.localStorage.getItem("uniHubCurrentUser");
+  return raw ? JSON.parse(raw) : null;
+}
+
+function setCurrentUser(user) {
+  window.localStorage.setItem("uniHubCurrentUser", JSON.stringify(user));
+}
+
+function setAuthMessage(message) {
+  const authMessage = document.getElementById("auth-message");
+  if (authMessage) authMessage.textContent = message || "";
+}
+
+function signIn(user) {
   window.localStorage.setItem("uniHubAuth", "true");
+  setCurrentUser(user);
   window.location.href = "/dashboard";
 }
 
 function signOut() {
   window.localStorage.removeItem("uniHubAuth");
+  window.localStorage.removeItem("uniHubCurrentUser");
   window.location.href = "/login";
 }
 
@@ -36,16 +58,59 @@ function setupAuthFlows() {
   const logoutLink = document.getElementById("logout-link");
 
   if (loginForm) {
-    loginForm.addEventListener("submit", (event) => {
+    loginForm.addEventListener("submit", async (event) => {
       event.preventDefault();
-      signIn();
+      const formData = new FormData(loginForm);
+
+      try {
+        setAuthMessage("");
+        const payload = {
+          email: formData.get("email"),
+          password: formData.get("password"),
+        };
+        const data = await fetchJson("/api/auth/login", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(payload),
+        });
+        signIn(data.user);
+      } catch (error) {
+        setAuthMessage(error.message);
+      }
     });
   }
 
   if (registerForm) {
-    registerForm.addEventListener("submit", (event) => {
+    registerForm.addEventListener("submit", async (event) => {
       event.preventDefault();
-      signIn();
+      const formData = new FormData(registerForm);
+      const password = formData.get("password");
+      const confirmPassword = formData.get("confirmPassword");
+
+      if (password !== confirmPassword) {
+        setAuthMessage("Passwords do not match.");
+        return;
+      }
+
+      try {
+        setAuthMessage("");
+        const payload = {
+          name: formData.get("name"),
+          studentId: formData.get("studentId"),
+          email: formData.get("email"),
+          department: formData.get("department"),
+          year: formData.get("year"),
+          password,
+        };
+        const data = await fetchJson("/api/auth/register", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(payload),
+        });
+        signIn(data.user);
+      } catch (error) {
+        setAuthMessage(error.message);
+      }
     });
   }
 
@@ -278,6 +343,12 @@ async function renderDashboard() {
   const clubsList = document.getElementById("clubs-list");
   const announcementList = document.getElementById("announcement-list");
   const dashboardStats = document.getElementById("dashboard-stats");
+  const dashboardGreeting = document.getElementById("dashboard-greeting");
+  const currentUser = getCurrentUser();
+
+  if (dashboardGreeting && currentUser?.name) {
+    dashboardGreeting.textContent = `Welcome back, ${currentUser.name}.`;
+  }
 
   if (eventsTable) eventsTable.innerHTML = eventTableMarkup(events);
   if (clubsList) {
@@ -306,7 +377,7 @@ async function renderProfile() {
   const profileCard = document.getElementById("profile-card");
   if (!profileCard) return;
 
-  const user = await fetchJson("/api/users/me");
+  const user = getCurrentUser() || (await fetchJson("/api/users/me"));
   if (!user) {
     profileCard.innerHTML = emptyStateMarkup("No profile data is available yet.");
     return;
