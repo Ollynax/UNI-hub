@@ -66,42 +66,7 @@ function clubIcon(icon) {
     science: "🔬",
     rocket: "🚀",
   };
-  return icons[icon] || "⭐";
-}
-
-function eventMarkup(event) {
-  return `
-    <article class="event-card">
-      <div class="date-badge">
-        <span>${event.month}</span>
-        <strong>${event.day}</strong>
-      </div>
-      <div class="event-copy">
-        <h4>${event.title}</h4>
-        <p>${event.location} • ${event.time}</p>
-        <small>${event.category}</small>
-      </div>
-      <button type="button">${event.actionLabel}</button>
-    </article>
-  `;
-}
-
-function heroEventMarkup(event) {
-  return `
-    <article class="mock-item">
-      <div class="mini-date ${event.status.toLowerCase()}">
-        <span>${event.month}</span>
-        <strong>${event.day}</strong>
-      </div>
-      <div>
-        <h4>${event.title}</h4>
-        <div class="mini-bars">
-          <span></span><span></span>
-        </div>
-      </div>
-      <button type="button">${event.actionLabel}</button>
-    </article>
-  `;
+  return icons[icon] || "★";
 }
 
 function clubMarkup(club) {
@@ -135,9 +100,123 @@ function statMarkup(label, value) {
   `;
 }
 
+function heroEventMarkup(event) {
+  return `
+    <article class="mock-item">
+      <div class="mini-date ${event.status.toLowerCase()}">
+        <span>${event.month}</span>
+        <strong>${event.day}</strong>
+      </div>
+      <div>
+        <h4>${event.title}</h4>
+        <div class="mini-bars">
+          <span></span><span></span>
+        </div>
+      </div>
+      <button type="button">${event.actionLabel}</button>
+    </article>
+  `;
+}
+
+function eventTableMarkup(events) {
+  return `
+    <table class="events-table">
+      <thead>
+        <tr>
+          <th>Date</th>
+          <th>Event</th>
+          <th>Category</th>
+          <th>Location</th>
+          <th>Time</th>
+          <th>Action</th>
+        </tr>
+      </thead>
+      <tbody>
+        ${events
+          .map(
+            (event) => `
+              <tr>
+                <td><span class="table-date">${event.month} ${event.day}</span></td>
+                <td>${event.title}</td>
+                <td>${event.category}</td>
+                <td>${event.location}</td>
+                <td>${event.time}</td>
+                <td><button type="button" class="table-action">${event.actionLabel}</button></td>
+              </tr>
+            `,
+          )
+          .join("")}
+      </tbody>
+    </table>
+  `;
+}
+
+function loadInstitutionBranding() {
+  const image = window.localStorage.getItem("uniHubInstitutionImage");
+  const title = window.localStorage.getItem("uniHubInstitutionTitle");
+  const caption = window.localStorage.getItem("uniHubInstitutionCaption");
+
+  const landingImage = document.getElementById("institution-image");
+  const landingTitle = document.getElementById("institution-name");
+  const landingCaption = document.getElementById("institution-caption");
+  const adminPreview = document.getElementById("admin-institution-preview");
+  const adminTitle = document.getElementById("institution-title");
+  const adminCaption = document.getElementById("institution-caption-input");
+
+  if (image && landingImage) landingImage.src = image;
+  if (image && adminPreview) adminPreview.src = image;
+  if (title && landingTitle) landingTitle.textContent = title;
+  if (caption && landingCaption) landingCaption.textContent = caption;
+  if (title && adminTitle) adminTitle.value = title;
+  if (caption && adminCaption) adminCaption.value = caption;
+}
+
+function setupInstitutionBranding() {
+  loadInstitutionBranding();
+
+  const imageInput = document.getElementById("institution-image-input");
+  const titleInput = document.getElementById("institution-title");
+  const captionInput = document.getElementById("institution-caption-input");
+  const saveButton = document.getElementById("save-institution-branding");
+  const preview = document.getElementById("admin-institution-preview");
+
+  if (!saveButton) return;
+
+  let pendingImage = window.localStorage.getItem("uniHubInstitutionImage") || "";
+
+  if (imageInput) {
+    imageInput.addEventListener("change", () => {
+      const file = imageInput.files && imageInput.files[0];
+      if (!file) return;
+
+      const reader = new FileReader();
+      reader.onload = () => {
+        pendingImage = reader.result;
+        if (preview) preview.src = pendingImage;
+      };
+      reader.readAsDataURL(file);
+    });
+  }
+
+  saveButton.addEventListener("click", () => {
+    if (pendingImage) {
+      window.localStorage.setItem("uniHubInstitutionImage", pendingImage);
+    }
+
+    if (titleInput && titleInput.value.trim()) {
+      window.localStorage.setItem("uniHubInstitutionTitle", titleInput.value.trim());
+    }
+
+    if (captionInput && captionInput.value.trim()) {
+      window.localStorage.setItem("uniHubInstitutionCaption", captionInput.value.trim());
+    }
+
+    loadInstitutionBranding();
+  });
+}
+
 async function renderHome() {
   const [events, clubs] = await Promise.all([fetchJson("/api/events"), fetchJson("/api/clubs")]);
-
   const heroEvents = document.getElementById("hero-events");
   const heroClubs = document.getElementById("hero-clubs");
   const phoneEvents = document.getElementById("phone-events");
@@ -176,12 +255,12 @@ async function renderDashboard() {
     fetchJson("/api/announcements"),
   ]);
 
-  const eventsList = document.getElementById("events-list");
+  const eventsTable = document.getElementById("events-table");
   const clubsList = document.getElementById("clubs-list");
   const announcementList = document.getElementById("announcement-list");
   const dashboardStats = document.getElementById("dashboard-stats");
 
-  if (eventsList) eventsList.innerHTML = events.map(eventMarkup).join("");
+  if (eventsTable) eventsTable.innerHTML = eventTableMarkup(events);
   if (clubsList) clubsList.innerHTML = clubs.map(clubMarkup).join("");
   if (announcementList) announcementList.innerHTML = announcements.map(announcementMarkup).join("");
 
@@ -259,8 +338,14 @@ async function renderAdmin() {
 }
 
 if (setupAuthFlows()) {
-  if (page === "home") renderHome();
+  if (page === "home") {
+    loadInstitutionBranding();
+    renderHome();
+  }
   if (page === "dashboard") renderDashboard();
   if (page === "profile") renderProfile();
-  if (page === "admin") renderAdmin();
+  if (page === "admin") {
+    setupInstitutionBranding();
+    renderAdmin();
+  }
 }

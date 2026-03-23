@@ -25,8 +25,8 @@
         <a href="#platform">Platform</a>
         <a href="#features">Features</a>
         <a href="#workflow">Workflow</a>
-        <a href="/register">Register</a>
-        <a href="/login" class="button ghost">Log In</a>
+        <a href="/register" class="nav-auth nav-register">Register</a>
+        <a href="/login" class="button ghost nav-auth nav-login">Log In</a>
       </nav>
     </header>
 
@@ -61,55 +61,36 @@
         </div>
 
         <div class="device-scene">
-          <div class="laptop">
-            <div class="screen">
-              <div class="screen-topbar">
-                <div class="mini-brand"></div>
-                <nav>
-                  <span class="active">Dashboard</span>
-                  <span>Events</span>
-                  <span>Clubs</span>
-                  <span>Announcements</span>
-                </nav>
-                <div class="avatar-pill">Hi, Alex!</div>
-              </div>
-              <div class="screen-grid">
-                <article class="panel">
-                  <div class="panel-header">
-                    <h3>Upcoming Events</h3>
-                  </div>
-                  <div id="hero-events" class="mock-list"></div>
-                </article>
-                <article class="panel">
-                  <div class="panel-header">
-                    <h3>Clubs & Organizations</h3>
-                  </div>
-                  <div id="hero-clubs" class="mock-list clubs"></div>
-                </article>
-                <article class="panel panel-short">
-                  <div class="panel-header">
-                    <h3>Quick Links</h3>
-                  </div>
-                  <div class="quick-actions">
-                    <button type="button" class="quick orange">Create Event</button>
-                    <button type="button" class="quick green">Join a Club</button>
-                    <button type="button" class="quick blue">My RSVPs</button>
-                  </div>
-                </article>
-                <article class="panel panel-short">
-                  <div class="panel-header">
-                    <h3>Statistics</h3>
-                  </div>
-                  <div class="stats-strip">
-                    <div><strong>125</strong><span>RSVPs</span></div>
-                    <div><strong>8</strong><span>Events</span></div>
-                    <div><strong>350</strong><span>Check-ins</span></div>
-                  </div>
-                </article>
+          <section class="institution-showcase">
+            <div class="institution-visual">
+              <img
+                id="institution-image"
+                src="https://images.unsplash.com/photo-1562774053-701939374585?auto=format&fit=crop&w=1200&q=80"
+                alt="Institution campus"
+              />
+              <div class="institution-overlay">
+                <p class="eyebrow">Institution Profile</p>
+                <h3 id="institution-name">Your Institution, Presented Professionally</h3>
+                <p id="institution-caption">
+                  Admins can upload a branded campus image from the admin panel to personalize the landing page.
+                </p>
               </div>
             </div>
-            <div class="laptop-base"></div>
-          </div>
+            <div class="institution-facts">
+              <article class="institution-card">
+                <span>Branded institution image</span>
+                <strong>Show campus identity directly on the landing page.</strong>
+              </article>
+              <article class="institution-card">
+                <span>Admin-managed homepage</span>
+                <strong>Update the visual presentation from the admin panel whenever needed.</strong>
+              </article>
+              <article class="institution-card">
+                <span>Student-facing platform</span>
+                <strong>Lead visitors straight into registration or login with clear calls to action.</strong>
+              </article>
+            </div>
+          </section>
 
           <div class="phone">
             <div class="phone-notch"></div>
@@ -119,6 +100,58 @@
               <div id="phone-events" class="phone-events"></div>
             </div>
           </div>
+        </div>
+      </section>
+
+      <section class="preview-shell">
+        <div class="laptop preview-laptop">
+          <div class="screen">
+            <div class="screen-topbar">
+              <div class="mini-brand"></div>
+              <nav>
+                <span class="active">Dashboard</span>
+                <span>Events</span>
+                <span>Clubs</span>
+                <span>Announcements</span>
+              </nav>
+              <div class="avatar-pill">Hi, Alex!</div>
+            </div>
+            <div class="screen-grid">
+              <article class="panel">
+                <div class="panel-header">
+                  <h3>Upcoming Events</h3>
+                </div>
+                <div id="hero-events" class="mock-list"></div>
+              </article>
+              <article class="panel">
+                <div class="panel-header">
+                  <h3>Clubs & Organizations</h3>
+                </div>
+                <div id="hero-clubs" class="mock-list clubs"></div>
+              </article>
+              <article class="panel panel-short">
+                <div class="panel-header">
+                  <h3>Quick Links</h3>
+                </div>
+                <div class="quick-actions">
+                  <button type="button" class="quick orange">Create Event</button>
+                  <button type="button" class="quick green">Join a Club</button>
+                  <button type="button" class="quick blue">My RSVPs</button>
+                </div>
+              </article>
+              <article class="panel panel-short">
+                <div class="panel-header">
+                  <h3>Statistics</h3>
+                </div>
+                <div class="stats-strip">
+                  <div><strong>125</strong><span>RSVPs</span></div>
+                  <div><strong>8</strong><span>Events</span></div>
+                  <div><strong>350</strong><span>Check-ins</span></div>
+                </div>
+              </article>
+            </div>
+          </div>
+          <div class="laptop-base"></div>
         </div>
       </section>
 
@@ -190,42 +223,6 @@
             <h3>Improve</h3>
             <p>Review engagement signals and use them to plan stronger student programs over time.</p>
           </article>
-        </div>
-      </section>
-
-      <section class="info-section">
-        <div class="section-heading">
-          <p class="eyebrow">Why UNI Hub</p>
-          <h2>A cleaner, more reliable digital front door for student life.</h2>
-        </div>
-        <div class="benefit-grid">
-          <article class="benefit-card">
-            <h3>Centralized operations</h3>
-            <p>Keep events, clubs, attendance, and announcements in one platform instead of scattered tools.</p>
-          </article>
-          <article class="benefit-card">
-            <h3>Better student visibility</h3>
-            <p>Help students quickly understand what is happening on campus and how to get involved.</p>
-          </article>
-          <article class="benefit-card">
-            <h3>Faster coordination</h3>
-            <p>Reduce admin friction with organized listings, simpler actions, and easier communication.</p>
-          </article>
-          <article class="benefit-card">
-            <h3>Actionable reporting</h3>
-            <p>Use participation metrics to support better planning, stronger clubs, and better event delivery.</p>
-          </article>
-        </div>
-      </section>
-
-      <section class="cta-banner">
-        <div>
-          <p class="eyebrow">Ready to Start</p>
-          <h2>Give your campus community one place to connect, participate, and stay informed.</h2>
-        </div>
-        <div class="hero-actions">
-          <a href="/register" class="button">Create Account</a>
-          <a href="/login" class="button secondary">Access Existing Account</a>
         </div>
       </section>
     </main>

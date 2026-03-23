@@ -35,7 +35,7 @@
           <p class="hero-tag">Student Community Overview</p>
           <h1>Welcome back, Alex.</h1>
           <p class="hero-text">
-            Here’s a live view of upcoming events, club activity, and campus announcements.
+            Start with upcoming events and quick actions, then move into clubs, announcements, and campus activity.
           </p>
         </div>
         <div class="mini-stats" id="dashboard-stats"></div>
@@ -47,7 +47,18 @@
             <h3>Upcoming Events</h3>
             <a href="/register">Create Event</a>
           </div>
-          <div id="events-list" class="event-list"></div>
+          <div id="events-table" class="table-shell"></div>
+        </article>
+
+        <article class="panel">
+          <div class="panel-header">
+            <h3>Quick Links</h3>
+          </div>
+          <div class="quick-actions vertical">
+            <a href="/profile" class="quick green">Join a Club</a>
+            <a href="/register" class="quick orange">Create Event</a>
+            <a href="/dashboard" class="quick blue">My RSVP</a>
+          </div>
         </article>
 
         <article class="panel">
@@ -58,22 +69,11 @@
           <div id="clubs-list" class="club-list"></div>
         </article>
 
-        <article class="panel">
+        <article class="panel wide">
           <div class="panel-header">
             <h3>Announcements</h3>
           </div>
           <div id="announcement-list" class="announcement-list"></div>
-        </article>
-
-        <article class="panel">
-          <div class="panel-header">
-            <h3>Quick Links</h3>
-          </div>
-          <div class="quick-actions vertical">
-            <a href="/register" class="quick orange">Create Event</a>
-            <a href="/profile" class="quick green">Join a Club</a>
-            <a href="/adminpanel" class="quick blue">Track RSVPs</a>
-          </div>
         </article>
       </section>
     </main>
