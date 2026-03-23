@@ -10,7 +10,7 @@ async function fetchJson(url, options) {
 }
 
 const page = document.body.dataset.page;
-const protectedPages = new Set(["dashboard", "profile", "admin"]);
+const protectedPages = new Set(["dashboard", "profile", "admin", "joinclub", "createclub"]);
 
 function isAuthenticated() {
   return window.localStorage.getItem("uniHubAuth") === "true";
@@ -29,17 +29,36 @@ function setCurrentUser(user) {
   window.localStorage.setItem("uniHubCurrentUser", JSON.stringify(user));
 }
 
+function isAdminUser(user) {
+  return (user?.role || "").toLowerCase() === "admin";
+}
+
 function setText(id, value) {
   const element = document.getElementById(id);
   if (element) element.textContent = value;
 }
 
-function setAuthMessage(message) {
-  setText("auth-message", message || "");
+function setMessage(id, message, status = "info") {
+  const element = document.getElementById(id);
+  if (!element) return;
+  element.textContent = message || "";
+  element.dataset.status = status;
 }
 
-function setBrandingMessage(message) {
-  setText("branding-message", message || "");
+function setAuthMessage(message, status = "error") {
+  setMessage("auth-message", message || "", status);
+}
+
+function setBrandingMessage(message, status = "success") {
+  setMessage("branding-message", message || "", status);
+}
+
+function setJoinClubMessage(message, status = "success") {
+  setMessage("join-club-message", message || "", status);
+}
+
+function setCreateClubMessage(message, status = "success") {
+  setMessage("create-club-message", message || "", status);
 }
 
 function signIn(user) {
@@ -55,8 +74,15 @@ function signOut() {
 }
 
 function setupAuthFlows() {
+  const currentUser = getCurrentUser();
+
   if (protectedPages.has(page) && !isAuthenticated()) {
     window.location.href = "/login";
+    return false;
+  }
+
+  if (page === "admin" && !isAdminUser(currentUser)) {
+    window.location.href = "/dashboard";
     return false;
   }
 
@@ -75,7 +101,7 @@ function setupAuthFlows() {
       const formData = new FormData(loginForm);
 
       try {
-        setAuthMessage("");
+        setAuthMessage("", "info");
         const result = await fetchJson("/api/auth/login", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
@@ -86,7 +112,7 @@ function setupAuthFlows() {
         });
         signIn(result.user);
       } catch (error) {
-        setAuthMessage(error.message);
+        setAuthMessage(error.message, "error");
       }
     });
   }
@@ -99,12 +125,12 @@ function setupAuthFlows() {
       const confirmPassword = formData.get("confirmPassword");
 
       if (password !== confirmPassword) {
-        setAuthMessage("Passwords do not match.");
+        setAuthMessage("Passwords do not match.", "error");
         return;
       }
 
       try {
-        setAuthMessage("");
+        setAuthMessage("", "info");
         const result = await fetchJson("/api/auth/register", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
@@ -119,7 +145,7 @@ function setupAuthFlows() {
         });
         signIn(result.user);
       } catch (error) {
-        setAuthMessage(error.message);
+        setAuthMessage(error.message, "error");
       }
     });
   }
@@ -132,6 +158,14 @@ function setupAuthFlows() {
   }
 
   return true;
+}
+
+function setupAdminVisibility() {
+  const currentUser = getCurrentUser();
+  const adminLinks = document.querySelectorAll("[data-admin-link]");
+  adminLinks.forEach((link) => {
+    link.style.display = isAdminUser(currentUser) ? "" : "none";
+  });
 }
 
 function emptyStateMarkup(message) {
@@ -188,6 +222,19 @@ function clubMarkup(club) {
         <p>${club.focus || "Club information will appear here."}</p>
       </div>
       <span class="club-meta">${club.members || 0} members</span>
+    </article>
+  `;
+}
+
+function joinClubItemMarkup(club) {
+  return `
+    <article class="club-card">
+      <div class="club-icon">${getClubBadge(club)}</div>
+      <div>
+        <h4>${club.name}</h4>
+        <p>${club.focus || "Club information will appear here."}</p>
+      </div>
+      <button type="button" class="table-action join-club-button" data-club-id="${club.id}">Join</button>
     </article>
   `;
 }
@@ -312,6 +359,46 @@ function setupInstitutionBranding() {
   });
 }
 
+function setupCreateClubForm() {
+  const form = document.getElementById("create-club-form");
+  if (!form) return;
+
+  form.addEventListener("submit", async (event) => {
+    event.preventDefault();
+    const currentUser = getCurrentUser();
+    const formData = new FormData(form);
+
+      try {
+        setCreateClubMessage("", "info");
+        const result = await fetchJson("/api/clubs", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          name: formData.get("name"),
+          category: formData.get("category"),
+          focus: formData.get("focus"),
+          contactEmail: formData.get("contactEmail"),
+          currentUserEmail: currentUser?.email,
+          createdBy: currentUser?.name,
+        }),
+      });
+
+      if (currentUser && result.club?.name) {
+        const nextUser = { ...currentUser, clubs: Array.isArray(currentUser.clubs) ? [...currentUser.clubs] : [] };
+        if (!nextUser.clubs.includes(result.club.name)) {
+          nextUser.clubs.push(result.club.name);
+        }
+        setCurrentUser(nextUser);
+      }
+
+      form.reset();
+      setCreateClubMessage("Club created successfully.", "success");
+    } catch (error) {
+      setCreateClubMessage(error.message, "error");
+    }
+  });
+}
+
 async function renderHome() {
   const [events, clubs] = await Promise.all([fetchJson("/api/events"), fetchJson("/api/clubs")]);
 
@@ -352,11 +439,21 @@ async function renderDashboard() {
   const clubsList = document.getElementById("clubs-list");
   const announcementList = document.getElementById("announcement-list");
   const dashboardStats = document.getElementById("dashboard-stats");
+  const dashboardRole = document.getElementById("dashboard-role");
+  const dashboardEmail = document.getElementById("dashboard-email");
 
   if (dashboardGreeting) {
     dashboardGreeting.textContent = currentUser?.name
       ? `Welcome back, ${currentUser.name}.`
       : "Welcome back.";
+  }
+
+  if (dashboardRole && currentUser?.role) {
+    dashboardRole.textContent = currentUser.role;
+  }
+
+  if (dashboardEmail && currentUser?.email) {
+    dashboardEmail.textContent = currentUser.email;
   }
 
   if (eventsTable) {
@@ -402,7 +499,7 @@ async function renderProfile() {
         <div>
           <p class="eyebrow">${user.role || "Student"}</p>
           <h1>${user.name}</h1>
-          <p>${user.department || "Department pending"}${user.year ? ` • ${user.year}` : ""}</p>
+          <p>${user.department || "Department pending"}${user.year ? ` - ${user.year}` : ""}</p>
         </div>
       </div>
       <div class="stat-grid stat-grid-compact">
@@ -452,7 +549,7 @@ async function renderAdmin() {
             (event) => `
               <article class="announcement-card">
                 <h4>${event.title}</h4>
-                <p>${event.date || "Date pending"}${event.location ? ` • ${event.location}` : ""}</p>
+                <p>${event.date || "Date pending"}${event.location ? ` - ${event.location}` : ""}</p>
                 <span class="status-tag">${event.status || "Scheduled"}</span>
               </article>
             `,
@@ -468,7 +565,53 @@ async function renderAdmin() {
   }
 }
 
+async function renderJoinClub() {
+  const clubList = document.getElementById("join-club-list");
+  if (!clubList) return;
+
+  const clubs = await fetchJson("/api/clubs");
+  clubList.innerHTML = clubs.length
+    ? clubs.map(joinClubItemMarkup).join("")
+    : emptyStateMarkup("No clubs are available to join yet.");
+
+  const currentUser = getCurrentUser();
+  const joinedCount = Array.isArray(currentUser?.clubs) ? currentUser.clubs.length : 0;
+  setText(
+    "club-membership-count",
+    joinedCount ? `You are currently in ${joinedCount} club${joinedCount === 1 ? "" : "s"}.` : "You have not joined any clubs yet.",
+  );
+
+  clubList.querySelectorAll(".join-club-button").forEach((button) => {
+    button.addEventListener("click", async () => {
+      const latestUser = getCurrentUser();
+
+      try {
+        setJoinClubMessage("", "info");
+        const result = await fetchJson("/api/clubs/join", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            clubId: button.dataset.clubId,
+            email: latestUser?.email,
+          }),
+        });
+        setCurrentUser(result.user);
+        const newCount = Array.isArray(result.user?.clubs) ? result.user.clubs.length : 0;
+        setText(
+          "club-membership-count",
+          newCount ? `You are currently in ${newCount} club${newCount === 1 ? "" : "s"}.` : "You have not joined any clubs yet.",
+        );
+        setJoinClubMessage("Club joined successfully.", "success");
+      } catch (error) {
+        setJoinClubMessage(error.message, "error");
+      }
+    });
+  });
+}
+
 if (setupAuthFlows()) {
+  setupAdminVisibility();
+
   if (page === "home") {
     loadInstitutionBranding();
     renderHome();
@@ -485,5 +628,13 @@ if (setupAuthFlows()) {
   if (page === "admin") {
     setupInstitutionBranding();
     renderAdmin();
+  }
+
+  if (page === "joinclub") {
+    renderJoinClub();
+  }
+
+  if (page === "createclub") {
+    setupCreateClubForm();
   }
 }

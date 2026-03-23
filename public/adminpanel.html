@@ -40,6 +40,10 @@
             event status, and club engagement.
           </p>
         </div>
+        <div class="page-meta">
+          <span class="role-chip">Admin Access</span>
+          <span>Roles are controlled directly from the database</span>
+        </div>
       </section>
 
       <section class="dashboard-grid admin-grid">
@@ -49,6 +53,7 @@
           </div>
           <div class="admin-upload">
             <div class="admin-upload-copy">
+              <p class="helper-note">Admin access depends on the user role stored in MongoDB. Roles are not editable in the UI.</p>
               <label for="institution-title">Institution Name</label>
               <input id="institution-title" type="text" placeholder="University Name" />
               <label for="institution-caption-input">Homepage Caption</label>

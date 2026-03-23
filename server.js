@@ -51,6 +51,8 @@ const routes = {
   "/dashboard": "dashboard.html",
   "/profile": "profile.html",
   "/adminpanel": "adminpanel.html",
+  "/joinclub": "joinclub.html",
+  "/createclub": "createclub.html",
 };
 
 const stats = {
@@ -76,6 +78,20 @@ function sanitizeUser(user) {
     rsvps: user.rsvps || 0,
     checkIns: user.checkIns || 0,
     clubs: Array.isArray(user.clubs) ? user.clubs : [],
+  };
+}
+
+function sanitizeClub(club) {
+  if (!club) return null;
+
+  return {
+    id: club.id || club._id?.toString() || null,
+    name: club.name || "",
+    focus: club.focus || "",
+    members: club.members || 0,
+    contactEmail: club.contactEmail || "",
+    category: club.category || "",
+    createdBy: club.createdBy || "",
   };
 }
 
@@ -189,6 +205,80 @@ async function createUser(userData) {
   return localUser;
 }
 
+async function createClub(clubData) {
+  const nextClub = {
+    name: clubData.name.trim(),
+    focus: clubData.focus?.trim() || "",
+    category: clubData.category?.trim() || "",
+    contactEmail: (clubData.contactEmail || clubData.currentUserEmail || "").trim().toLowerCase(),
+    createdBy: (clubData.createdBy || "").trim(),
+    members: clubData.currentUserEmail ? 1 : 0,
+  };
+
+  if (db) {
+    const result = await db.collection("clubs").insertOne(nextClub);
+
+    if (clubData.currentUserEmail) {
+      await db.collection("users").updateOne(
+        { email: clubData.currentUserEmail.trim().toLowerCase() },
+        { $addToSet: { clubs: nextClub.name } },
+      );
+    }
+
+    return { ...nextClub, _id: result.insertedId };
+  }
+
+  const localClub = { ...nextClub, id: Date.now().toString() };
+  clubs.push(localClub);
+
+  if (clubData.currentUserEmail) {
+    const localUser = users.find((user) => user.email === clubData.currentUserEmail.trim().toLowerCase());
+    if (localUser && !localUser.clubs.includes(localClub.name)) {
+      localUser.clubs.push(localClub.name);
+    }
+  }
+
+  return localClub;
+}
+
+async function joinClubMembership(clubId, userEmail) {
+  const normalizedEmail = (userEmail || "").trim().toLowerCase();
+  if (!normalizedEmail) {
+    throw new Error("A signed-in user is required");
+  }
+
+  if (db) {
+    const { ObjectId } = require("mongodb");
+    const club = await db.collection("clubs").findOne({ _id: new ObjectId(clubId) });
+    if (!club) throw new Error("Club not found");
+
+    const user = await db.collection("users").findOne({ email: normalizedEmail });
+    if (!user) throw new Error("User not found");
+
+    const alreadyJoined = Array.isArray(user.clubs) && user.clubs.includes(club.name);
+    if (!alreadyJoined) {
+      await db.collection("users").updateOne({ email: normalizedEmail }, { $addToSet: { clubs: club.name } });
+      await db.collection("clubs").updateOne({ _id: club._id }, { $inc: { members: 1 } });
+    }
+
+    const updatedUser = await db.collection("users").findOne({ email: normalizedEmail });
+    return sanitizeUser(updatedUser);
+  }
+
+  const club = clubs.find((item) => String(item.id) === String(clubId));
+  const user = users.find((item) => item.email === normalizedEmail);
+
+  if (!club) throw new Error("Club not found");
+  if (!user) throw new Error("User not found");
+
+  if (!user.clubs.includes(club.name)) {
+    user.clubs.push(club.name);
+    club.members = (club.members || 0) + 1;
+  }
+
+  return sanitizeUser(user);
+}
+
 function sendJson(response, payload, statusCode = 200) {
   response.writeHead(statusCode, { "Content-Type": "application/json; charset=utf-8" });
   response.end(JSON.stringify(payload));
@@ -258,7 +348,36 @@ const server = http.createServer(async (request, response) => {
   }
 
   if (pathname === "/api/events") return sendJson(response, await readCollection("events", events));
-  if (pathname === "/api/clubs") return sendJson(response, await readCollection("clubs", clubs));
+  if (pathname === "/api/clubs" && request.method === "GET") {
+    const clubItems = await readCollection("clubs", clubs);
+    return sendJson(response, clubItems.map(sanitizeClub));
+  }
+
+  if (pathname === "/api/clubs" && request.method === "POST") {
+    try {
+      const body = await parseRequestBody(request);
+
+      if (!body.name) {
+        return sendJson(response, { error: "Club name is required" }, 400);
+      }
+
+      const createdClub = await createClub(body);
+      return sendJson(response, { club: sanitizeClub(createdClub) }, 201);
+    } catch (error) {
+      return sendJson(response, { error: error.message }, 400);
+    }
+  }
+
+  if (pathname === "/api/clubs/join" && request.method === "POST") {
+    try {
+      const body = await parseRequestBody(request);
+      const updatedUser = await joinClubMembership(body.clubId, body.email);
+      return sendJson(response, { user: updatedUser });
+    } catch (error) {
+      return sendJson(response, { error: error.message }, 400);
+    }
+  }
+
   if (pathname === "/api/users/me") {
     const userList = await readCollection("users", users);
     return sendJson(response, userList[0] || null);

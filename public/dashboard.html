@@ -25,7 +25,9 @@
         <nav class="site-nav">
           <a href="/dashboard" class="active-link">Dashboard</a>
           <a href="/profile">Profile</a>
-          <a href="/adminpanel">Admin</a>
+          <a href="/joinclub">Join a Club</a>
+          <a href="/createclub">Create a Club</a>
+          <a href="/adminpanel" data-admin-link>Admin</a>
           <a href="/login" class="button secondary" id="logout-link">Log Out</a>
         </nav>
       </div>
@@ -40,6 +42,10 @@
             Monitor upcoming activity, review campus communications, and move quickly
             through the most important student actions.
           </p>
+          <div class="page-meta">
+            <span class="role-chip" id="dashboard-role">Student Workspace</span>
+            <span id="dashboard-email">Signed-in account</span>
+          </div>
         </div>
         <div id="dashboard-stats" class="stat-grid"></div>
       </section>
@@ -58,13 +64,13 @@
             <h2>Quick Actions</h2>
           </div>
           <div class="action-stack">
-            <a href="/profile" class="action-tile">
+            <a href="/joinclub" class="action-tile">
               <strong>Join a Club</strong>
               <span>Browse organizations and communities</span>
             </a>
-            <a href="/register" class="action-tile">
-              <strong>Create Event</strong>
-              <span>Start a new event submission workflow</span>
+            <a href="/createclub" class="action-tile">
+              <strong>Create a Club</strong>
+              <span>Submit a new student organization</span>
             </a>
             <a href="/dashboard" class="action-tile">
               <strong>My RSVP</strong>
