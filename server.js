@@ -4,6 +4,7 @@ const path = require("path");
 
 const events = require("./models/events");
 const clubs = require("./models/clubs");
+const departments = require("./models/departments");
 const users = require("./models/users");
 
 const publicDir = path.join(__dirname, "public");
@@ -72,11 +73,35 @@ let branding = { ...defaultBranding };
 
 const monthLabels = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
 
+function getRecordId(item) {
+  return item?.id || item?._id?.toString() || null;
+}
+
+function slugify(value) {
+  return String(value || "")
+    .trim()
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-|-$/g, "");
+}
+
+function getClubApprovalStatus(club) {
+  if (club?.approvalStatus?.trim()) return club.approvalStatus.trim();
+  if (typeof club?.approved === "boolean") {
+    return club.approved ? "Approved" : "Pending Approval";
+  }
+  return "Approved";
+}
+
+function isClubApproved(club) {
+  return getClubApprovalStatus(club).toLowerCase() === "approved";
+}
+
 function sanitizeUser(user) {
   if (!user) return null;
 
   return {
-    id: user.id || user._id?.toString() || null,
+    id: getRecordId(user),
     name: user.name || "",
     email: user.email || "",
     role: user.role || "Student",
@@ -93,13 +118,30 @@ function sanitizeClub(club) {
   if (!club) return null;
 
   return {
-    id: club.id || club._id?.toString() || null,
+    id: getRecordId(club),
     name: club.name || "",
     focus: club.focus || "",
     members: club.members || 0,
     contactEmail: club.contactEmail || "",
     category: club.category || "",
     createdBy: club.createdBy || "",
+    createdByEmail: club.createdByEmail || "",
+    requestedByEmail: club.requestedByEmail || "",
+    departmentId: club.departmentId || "",
+    departmentName: club.departmentName || "",
+    approvalStatus: getClubApprovalStatus(club),
+    approved: isClubApproved(club),
+  };
+}
+
+function sanitizeDepartment(department) {
+  if (!department) return null;
+
+  return {
+    id: getRecordId(department),
+    code: department.code || "",
+    name: department.name || "",
+    description: department.description || "",
   };
 }
 
@@ -107,7 +149,7 @@ function sanitizeEvent(event) {
   if (!event) return null;
 
   return {
-    id: event.id || event._id?.toString() || null,
+    id: getRecordId(event),
     title: event.title || "",
     date: event.date || "",
     month: event.month || "",
@@ -125,7 +167,7 @@ function sanitizeAnnouncement(item) {
   if (!item) return null;
 
   return {
-    id: item.id || item._id?.toString() || null,
+    id: getRecordId(item),
     title: item.title || "",
     detail: item.detail || "",
   };
@@ -147,11 +189,22 @@ async function connectToDatabase() {
     mongoClient = new MongoClient(process.env.MONGODB_URI);
     await mongoClient.connect();
     db = mongoClient.db(process.env.MONGODB_DB || "uni_hub");
+    await seedCollectionIfEmpty("departments", departments);
+    await seedCollectionIfEmpty("clubs", clubs);
     console.log("Connected to MongoDB");
   } catch (error) {
     db = null;
     console.warn("MongoDB unavailable, using local empty data.");
     console.warn(error.message);
+  }
+}
+
+async function seedCollectionIfEmpty(name, seedItems) {
+  if (!db || !Array.isArray(seedItems) || !seedItems.length) return;
+
+  const count = await db.collection(name).countDocuments();
+  if (!count) {
+    await db.collection(name).insertMany(seedItems.map((item) => ({ ...item })));
   }
 }
 
@@ -168,8 +221,6 @@ async function readCollection(name, fallback) {
 }
 
 async function getStats() {
-  if (!db) return stats;
-
   const [eventItems, clubItems, userItems] = await Promise.all([
     readCollection("events", events),
     readCollection("clubs", clubs),
@@ -180,7 +231,7 @@ async function getStats() {
     rsvps: userItems.reduce((total, user) => total + (user.rsvps || 0), 0),
     eventsThisMonth: eventItems.length,
     checkIns: userItems.reduce((total, user) => total + (user.checkIns || 0), 0),
-    clubsActive: clubItems.length,
+    clubsActive: clubItems.filter(isClubApproved).length,
   };
 }
 
@@ -249,40 +300,222 @@ async function createUser(userData) {
   return localUser;
 }
 
-async function createClub(clubData) {
-  const nextClub = {
+async function getDepartmentItems() {
+  return readCollection("departments", departments);
+}
+
+async function getClubItems(options = {}) {
+  const clubItems = await readCollection("clubs", clubs);
+  return options.approvedOnly ? clubItems.filter(isClubApproved) : clubItems;
+}
+
+function buildCollectionIdFilter(id) {
+  const filters = [{ id: String(id) }];
+
+  try {
+    const { ObjectId } = require("mongodb");
+    if (ObjectId.isValid(String(id))) {
+      filters.push({ _id: new ObjectId(String(id)) });
+    }
+  } catch {}
+
+  return filters.length === 1 ? filters[0] : { $or: filters };
+}
+
+async function resolveDepartmentAssignment(departmentId) {
+  const normalizedDepartmentId = String(departmentId || "").trim();
+  if (!normalizedDepartmentId) {
+    return {
+      departmentId: "",
+      departmentName: "",
+    };
+  }
+
+  const departmentItems = await getDepartmentItems();
+  const department = departmentItems.find((item) => String(getRecordId(item)) === normalizedDepartmentId);
+
+  if (!department) {
+    throw new Error("Selected department was not found");
+  }
+
+  return {
+    departmentId: String(getRecordId(department)),
+    departmentName: department.name || "",
+  };
+}
+
+async function findClubByName(name) {
+  const normalizedName = String(name || "").trim().toLowerCase();
+  if (!normalizedName) return null;
+
+  const clubItems = await getClubItems();
+  return clubItems.find((club) => (club.name || "").trim().toLowerCase() === normalizedName) || null;
+}
+
+async function buildClubRecord(clubData, options = {}) {
+  const approved = Boolean(options.approved);
+  const departmentAssignment = await resolveDepartmentAssignment(clubData.departmentId);
+  const creatorEmail = (clubData.currentUserEmail || clubData.createdByEmail || clubData.requestedByEmail || "").trim().toLowerCase();
+  const createdBy = (clubData.createdBy || "").trim();
+
+  return {
     name: clubData.name.trim(),
     focus: clubData.focus?.trim() || "",
     category: clubData.category?.trim() || "",
-    contactEmail: (clubData.contactEmail || clubData.currentUserEmail || "").trim().toLowerCase(),
-    createdBy: (clubData.createdBy || "").trim(),
-    members: clubData.currentUserEmail ? 1 : 0,
+    contactEmail: (clubData.contactEmail || creatorEmail).trim().toLowerCase(),
+    createdBy,
+    createdByEmail: creatorEmail,
+    requestedByEmail: approved ? "" : creatorEmail,
+    members: approved ? Math.max(Number(clubData.members) || 0, 0) : 0,
+    departmentId: departmentAssignment.departmentId,
+    departmentName: departmentAssignment.departmentName,
+    approvalStatus: approved ? "Approved" : "Pending Approval",
+    approved,
   };
+}
+
+async function createClub(clubData, options = {}) {
+  const existingClub = await findClubByName(clubData.name);
+  if (existingClub) {
+    throw new Error("A club with that name already exists");
+  }
+
+  const nextClub = await buildClubRecord(clubData, options);
 
   if (db) {
     const result = await db.collection("clubs").insertOne(nextClub);
-
-    if (clubData.currentUserEmail) {
-      await db.collection("users").updateOne(
-        { email: clubData.currentUserEmail.trim().toLowerCase() },
-        { $addToSet: { clubs: nextClub.name } },
-      );
-    }
-
     return { ...nextClub, _id: result.insertedId };
   }
 
-  const localClub = { ...nextClub, id: Date.now().toString() };
+  const localClub = { ...nextClub, id: slugify(clubData.name) || Date.now().toString() };
   clubs.push(localClub);
+  return localClub;
+}
 
-  if (clubData.currentUserEmail) {
-    const localUser = users.find((user) => user.email === clubData.currentUserEmail.trim().toLowerCase());
-    if (localUser && !localUser.clubs.includes(localClub.name)) {
-      localUser.clubs.push(localClub.name);
-    }
+async function createDepartment(data) {
+  const name = data.name?.trim() || "";
+  const code = data.code?.trim().toUpperCase() || "";
+
+  if (!name || !code) {
+    throw new Error("Department name and code are required");
   }
 
-  return localClub;
+  const departmentItems = await getDepartmentItems();
+  const existingDepartment = departmentItems.find(
+    (item) => (item.name || "").trim().toLowerCase() === name.toLowerCase() || (item.code || "").trim().toUpperCase() === code,
+  );
+
+  if (existingDepartment) {
+    throw new Error("A department with that name or code already exists");
+  }
+
+  const nextDepartment = {
+    id: slugify(code || name) || Date.now().toString(),
+    code,
+    name,
+    description: data.description?.trim() || "",
+  };
+
+  if (db) {
+    await db.collection("departments").insertOne(nextDepartment);
+    return nextDepartment;
+  }
+
+  departments.push(nextDepartment);
+  return nextDepartment;
+}
+
+async function deleteDepartment(departmentId) {
+  if (db) {
+    await db.collection("departments").deleteOne(buildCollectionIdFilter(departmentId));
+    await db.collection("clubs").updateMany(
+      { departmentId: String(departmentId) },
+      { $set: { departmentId: "", departmentName: "" } },
+    );
+    return;
+  }
+
+  const departmentIndex = departments.findIndex((department) => String(department.id) === String(departmentId));
+  if (departmentIndex !== -1) {
+    departments.splice(departmentIndex, 1);
+  }
+
+  clubs.forEach((club) => {
+    if (String(club.departmentId) === String(departmentId)) {
+      club.departmentId = "";
+      club.departmentName = "";
+    }
+  });
+}
+
+async function syncClubCreatorMembership(club) {
+  const creatorEmail = (club?.requestedByEmail || club?.createdByEmail || "").trim().toLowerCase();
+  if (!creatorEmail || !club?.name) return;
+
+  if (db) {
+    const clubFilter = buildCollectionIdFilter(getRecordId(club));
+    const user = await db.collection("users").findOne({ email: creatorEmail });
+    if (!user) return;
+
+    const alreadyJoined = Array.isArray(user.clubs) && user.clubs.includes(club.name);
+    if (!alreadyJoined) {
+      await db.collection("users").updateOne({ email: creatorEmail }, { $addToSet: { clubs: club.name } });
+      await db.collection("clubs").updateOne(clubFilter, { $inc: { members: 1 } });
+    }
+
+    return;
+  }
+
+  const user = users.find((item) => item.email === creatorEmail);
+  if (!user) return;
+
+  if (!user.clubs.includes(club.name)) {
+    user.clubs.push(club.name);
+    club.members = (club.members || 0) + 1;
+  }
+}
+
+async function updateClub(clubId, data) {
+  const departmentAssignment = await resolveDepartmentAssignment(data.departmentId);
+
+  if (db) {
+    const filter = buildCollectionIdFilter(clubId);
+    const existingClub = await db.collection("clubs").findOne(filter);
+    if (!existingClub) throw new Error("Club not found");
+
+    const nextApprovalStatus = data.approvalStatus?.trim() || getClubApprovalStatus(existingClub);
+    const updates = {
+      departmentId: departmentAssignment.departmentId,
+      departmentName: departmentAssignment.departmentName,
+      approvalStatus: nextApprovalStatus,
+      approved: nextApprovalStatus.toLowerCase() === "approved",
+    };
+
+    await db.collection("clubs").updateOne(filter, { $set: updates });
+
+    const updatedClub = await db.collection("clubs").findOne(filter);
+    if (updates.approved && !isClubApproved(existingClub)) {
+      await syncClubCreatorMembership(updatedClub);
+      return db.collection("clubs").findOne(filter);
+    }
+
+    return updatedClub;
+  }
+
+  const club = clubs.find((item) => String(item.id) === String(clubId));
+  if (!club) throw new Error("Club not found");
+
+  const wasApproved = isClubApproved(club);
+  club.departmentId = departmentAssignment.departmentId;
+  club.departmentName = departmentAssignment.departmentName;
+  club.approvalStatus = data.approvalStatus?.trim() || club.approvalStatus || "Pending Approval";
+  club.approved = club.approvalStatus.toLowerCase() === "approved";
+
+  if (club.approved && !wasApproved) {
+    await syncClubCreatorMembership(club);
+  }
+
+  return club;
 }
 
 async function ensureAdminUser(email) {
@@ -342,8 +575,7 @@ async function createAnnouncement(data) {
 
 async function deleteRecord(collectionName, id, fallback) {
   if (db) {
-    const { ObjectId } = require("mongodb");
-    await db.collection(collectionName).deleteOne({ _id: new ObjectId(id) });
+    await db.collection(collectionName).deleteOne(buildCollectionIdFilter(id));
     return;
   }
 
@@ -385,9 +617,9 @@ async function joinClubMembership(clubId, userEmail) {
   }
 
   if (db) {
-    const { ObjectId } = require("mongodb");
-    const club = await db.collection("clubs").findOne({ _id: new ObjectId(clubId) });
+    const club = await db.collection("clubs").findOne(buildCollectionIdFilter(clubId));
     if (!club) throw new Error("Club not found");
+    if (!isClubApproved(club)) throw new Error("This club is waiting for admin approval");
 
     const user = await db.collection("users").findOne({ email: normalizedEmail });
     if (!user) throw new Error("User not found");
@@ -406,6 +638,7 @@ async function joinClubMembership(clubId, userEmail) {
   const user = users.find((item) => item.email === normalizedEmail);
 
   if (!club) throw new Error("Club not found");
+  if (!isClubApproved(club)) throw new Error("This club is waiting for admin approval");
   if (!user) throw new Error("User not found");
 
   if (!user.clubs.includes(club.name)) {
@@ -530,8 +763,20 @@ const server = http.createServer(async (request, response) => {
   }
 
   if (pathname === "/api/clubs" && request.method === "GET") {
-    const clubItems = await readCollection("clubs", clubs);
-    return sendJson(response, clubItems.map(sanitizeClub));
+    try {
+      const scope = parsedUrl.searchParams.get("scope");
+      if (scope === "admin") {
+        await ensureAdminUser(parsedUrl.searchParams.get("email"));
+        const clubItems = await getClubItems();
+        return sendJson(response, clubItems.map(sanitizeClub));
+      }
+
+      const clubItems = await getClubItems({ approvedOnly: true });
+      return sendJson(response, clubItems.map(sanitizeClub));
+    } catch (error) {
+      const statusCode = error.message === "Admin access required" ? 403 : 400;
+      return sendJson(response, { error: error.message }, statusCode);
+    }
   }
 
   if (pathname === "/api/clubs" && request.method === "POST") {
@@ -542,10 +787,22 @@ const server = http.createServer(async (request, response) => {
         return sendJson(response, { error: "Club name is required" }, 400);
       }
 
-      const createdClub = await createClub(body);
+      if (!body.departmentId) {
+        return sendJson(response, { error: "A department must be selected" }, 400);
+      }
+
+      const isAdminCreation = Boolean(body.actorEmail);
+      if (isAdminCreation) {
+        await ensureAdminUser(body.actorEmail);
+      } else if (!body.currentUserEmail) {
+        return sendJson(response, { error: "A signed-in student is required to submit a club request" }, 400);
+      }
+
+      const createdClub = await createClub(body, { approved: isAdminCreation });
       return sendJson(response, { club: sanitizeClub(createdClub) }, 201);
     } catch (error) {
-      return sendJson(response, { error: error.message }, 400);
+      const statusCode = error.message === "Admin access required" ? 403 : 400;
+      return sendJson(response, { error: error.message }, statusCode);
     }
   }
 
@@ -559,6 +816,24 @@ const server = http.createServer(async (request, response) => {
     }
   }
 
+  if (pathname.startsWith("/api/clubs/") && request.method === "PUT") {
+    try {
+      const body = await parseRequestBody(request);
+      await ensureAdminUser(body.actorEmail);
+
+      if (!body.departmentId) {
+        return sendJson(response, { error: "A department must be selected before saving the club" }, 400);
+      }
+
+      const clubId = pathname.split("/").pop();
+      const updatedClub = await updateClub(clubId, body);
+      return sendJson(response, { club: sanitizeClub(updatedClub) });
+    } catch (error) {
+      const statusCode = error.message === "Admin access required" ? 403 : 400;
+      return sendJson(response, { error: error.message }, statusCode);
+    }
+  }
+
   if (pathname.startsWith("/api/clubs/") && request.method === "DELETE") {
     try {
       const body = await parseRequestBody(request);
@@ -566,6 +841,37 @@ const server = http.createServer(async (request, response) => {
 
       const clubId = pathname.split("/").pop();
       await deleteRecord("clubs", clubId, clubs);
+      return sendJson(response, { ok: true });
+    } catch (error) {
+      const statusCode = error.message === "Admin access required" ? 403 : 400;
+      return sendJson(response, { error: error.message }, statusCode);
+    }
+  }
+
+  if (pathname === "/api/departments" && request.method === "GET") {
+    const departmentItems = await getDepartmentItems();
+    return sendJson(response, departmentItems.map(sanitizeDepartment));
+  }
+
+  if (pathname === "/api/departments" && request.method === "POST") {
+    try {
+      const body = await parseRequestBody(request);
+      await ensureAdminUser(body.actorEmail);
+      const createdDepartment = await createDepartment(body);
+      return sendJson(response, { department: sanitizeDepartment(createdDepartment) }, 201);
+    } catch (error) {
+      const statusCode = error.message === "Admin access required" ? 403 : 400;
+      return sendJson(response, { error: error.message }, statusCode);
+    }
+  }
+
+  if (pathname.startsWith("/api/departments/") && request.method === "DELETE") {
+    try {
+      const body = await parseRequestBody(request);
+      await ensureAdminUser(body.actorEmail);
+
+      const departmentId = pathname.split("/").pop();
+      await deleteDepartment(departmentId);
       return sendJson(response, { ok: true });
     } catch (error) {
       const statusCode = error.message === "Admin access required" ? 403 : 400;

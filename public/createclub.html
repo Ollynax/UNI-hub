@@ -39,7 +39,7 @@
           <h1>Start a club people can picture joining.</h1>
           <p>
             Submit the basics here, give the group a clear purpose, and UNI Hub will
-            link your account as the first member and creator.
+            link your account as the creator once an admin approves the request.
           </p>
           <div class="page-tag-row">
             <span class="page-tag">Name it clearly</span>
@@ -63,8 +63,14 @@
               <input type="text" name="name" placeholder="Robotics Society" required />
             </label>
             <label>
+              Department
+              <select name="departmentId" id="club-department-select" required>
+                <option value="">Select a department</option>
+              </select>
+            </label>
+            <label>
               Category
-              <input type="text" name="category" placeholder="Technology" />
+              <input type="text" name="category" placeholder="Technology and Innovation" />
             </label>
             <label class="span-2">
               Club Focus
@@ -96,8 +102,8 @@
               <p>The best club listings make it obvious who to reach after someone gets interested.</p>
             </div>
             <div>
-              <strong>You become the anchor</strong>
-              <p>Your account is linked as creator and first member the moment the club is created.</p>
+              <strong>Approval comes first</strong>
+              <p>New clubs stay pending until an admin reviews the request and places it under a department.</p>
             </div>
           </div>
         </article>

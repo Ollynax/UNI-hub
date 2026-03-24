@@ -116,6 +116,10 @@ function setAdminClubMessage(message, status = "success") {
   setMessage("admin-club-message", message || "", status);
 }
 
+function setAdminDepartmentMessage(message, status = "success") {
+  setMessage("admin-department-message", message || "", status);
+}
+
 function signIn(user) {
   window.localStorage.setItem("uniHubAuth", "true");
   setCurrentUser(user);
@@ -262,6 +266,33 @@ function getClubBadge(club) {
     .join("");
 }
 
+function departmentOptionMarkup(department, selectedId = "") {
+  const departmentId = String(department?.id || "");
+  const selected = departmentId === String(selectedId || "") ? " selected" : "";
+  const code = department?.code ? `${department.code} - ` : "";
+  return `<option value="${escapeHtml(departmentId)}"${selected}>${escapeHtml(`${code}${department?.name || "Department"}`)}</option>`;
+}
+
+function departmentGroupMarkup(department, clubItems) {
+  if (!clubItems.length) return "";
+
+  return `
+    <section class="department-cluster">
+      <div class="department-cluster-header">
+        <div>
+          <p class="eyebrow">${escapeHtml(department.code || "Department")}</p>
+          <h3>${escapeHtml(department.name || "Unassigned")}</h3>
+        </div>
+        <span class="department-count">${escapeHtml(clubItems.length)} clubs</span>
+      </div>
+      ${department.description ? `<p class="department-cluster-copy">${escapeHtml(department.description)}</p>` : ""}
+      <div class="stack-list">
+        ${clubItems.map(joinClubItemMarkup).join("")}
+      </div>
+    </section>
+  `;
+}
+
 function previewEventMarkup(event) {
   const metaLine = [event.category || "Campus activity", event.time].filter(Boolean).join(" - ");
 
@@ -299,7 +330,7 @@ function mobileEventMarkup(event) {
 }
 
 function clubMarkup(club) {
-  const clubSecondary = [club.category, club.contactEmail].filter(Boolean).join(" - ") || "Student organization";
+  const clubSecondary = [club.departmentName, club.category, club.contactEmail].filter(Boolean).join(" - ") || "Student organization";
 
   return `
     <article class="club-card">
@@ -315,7 +346,7 @@ function clubMarkup(club) {
 }
 
 function joinClubItemMarkup(club) {
-  const clubSecondary = [club.category, club.contactEmail].filter(Boolean).join(" - ") || "Student organization";
+  const clubSecondary = [club.departmentName, club.category, club.contactEmail].filter(Boolean).join(" - ") || "Student organization";
 
   return `
     <article class="club-card">
@@ -349,12 +380,39 @@ function statMarkup(label, value) {
   `;
 }
 
+function mobileEventCardMarkup(event) {
+  const note = truncateText(
+    event.description || `${event.category || "Campus activity"} at ${event.location || "Location pending"}.`,
+    120,
+  );
+  const meta = [event.category || "Campus activity", event.location || "Location pending", event.time || "TBD"];
+
+  return `
+    <article class="event-mobile-card">
+      <div class="event-mobile-header">
+        <span class="table-date">${escapeHtml(event.month || "TBD")} ${escapeHtml(event.day || "--")}</span>
+        <button type="button" class="table-action">${escapeHtml(event.actionLabel || "View")}</button>
+      </div>
+      <div class="table-event-cell">
+        <span class="table-event-title">${escapeHtml(event.title)}</span>
+        <p class="table-event-note">${escapeHtml(note)}</p>
+      </div>
+      <div class="event-mobile-meta">
+        ${meta.map((item) => `<span>${escapeHtml(item)}</span>`).join("")}
+      </div>
+    </article>
+  `;
+}
+
 function eventTableMarkup(events) {
   if (!events.length) {
     return emptyStateMarkup("No upcoming events yet. Events will appear here after they are uploaded.");
   }
 
   return `
+    <div class="event-card-list">
+      ${events.map(mobileEventCardMarkup).join("")}
+    </div>
     <table class="events-table">
       <thead>
         <tr>
@@ -445,11 +503,20 @@ function adminAnnouncementMarkup(item) {
 
 function adminClubMarkup(club) {
   const meta = [
+    club.departmentName || "No department assigned",
+    club.approvalStatus || "Pending Approval",
     `${club.members || 0} members`,
     club.category || "General",
     club.contactEmail || "No contact email",
-    club.createdBy ? `Created by ${club.createdBy}` : "Creator not listed",
+    club.requestedByEmail ? `Requested by ${club.requestedByEmail}` : club.createdBy ? `Created by ${club.createdBy}` : "Creator not listed",
   ];
+  const statusAction =
+    String(club.approvalStatus || "").toLowerCase() === "approved"
+      ? ""
+      : `<button type="button" class="button" data-approve-club="${escapeHtml(club.id)}">Approve</button>`;
+  const departmentOptions = (window.uniHubDepartments || [])
+    .map((department) => departmentOptionMarkup(department, club.departmentId))
+    .join("");
 
   return `
     <article class="admin-record">
@@ -460,11 +527,44 @@ function adminClubMarkup(club) {
           <p>${escapeHtml(truncateText(club.focus || "No club focus provided.", 180))}</p>
         </div>
         <div class="admin-record-actions">
+          ${statusAction}
           <button type="button" class="button danger" data-delete-club="${escapeHtml(club.id)}">Delete</button>
         </div>
       </div>
       <div class="admin-record-meta">
         ${meta.map((item) => `<span>${escapeHtml(item)}</span>`).join("")}
+      </div>
+      <div class="admin-inline-form">
+        <label>
+          Department
+          <select data-club-department="${escapeHtml(club.id)}">
+            <option value="">Select a department</option>
+            ${departmentOptions}
+          </select>
+        </label>
+        <button type="button" class="button secondary" data-save-club="${escapeHtml(club.id)}">Save Department</button>
+      </div>
+    </article>
+  `;
+}
+
+function adminDepartmentMarkup(department, clubItems) {
+  const assignedClubs = clubItems.filter((club) => String(club.departmentId || "") === String(department.id || ""));
+
+  return `
+    <article class="admin-record">
+      <div class="admin-record-header">
+        <div>
+          <p class="record-kicker">${escapeHtml(department.code || "Department")}</p>
+          <h3>${escapeHtml(department.name || "Department")}</h3>
+          <p>${escapeHtml(department.description || "No description added yet.")}</p>
+        </div>
+        <div class="admin-record-actions">
+          <button type="button" class="button danger" data-delete-department="${escapeHtml(department.id)}">Delete</button>
+        </div>
+      </div>
+      <div class="admin-record-meta">
+        <span>${escapeHtml(assignedClubs.length)} assigned clubs</span>
       </div>
     </article>
   `;
@@ -577,10 +677,35 @@ function setupInstitutionBranding() {
   });
 }
 
+async function loadDepartments() {
+  const departments = await fetchJson("/api/departments");
+  window.uniHubDepartments = Array.isArray(departments) ? departments : [];
+  return window.uniHubDepartments;
+}
+
+function populateDepartmentSelect(selectElement, departments, selectedId = "") {
+  if (!selectElement) return;
+
+  selectElement.innerHTML = `
+    <option value="">Select a department</option>
+    ${departments.map((department) => departmentOptionMarkup(department, selectedId)).join("")}
+  `;
+}
+
 function setupCreateClubForm() {
   const form = document.getElementById("create-club-form");
   if (!form || form.dataset.bound === "true") return;
   form.dataset.bound = "true";
+
+  const departmentSelect = document.getElementById("club-department-select");
+
+  loadDepartments()
+    .then((departments) => {
+      populateDepartmentSelect(departmentSelect, departments);
+    })
+    .catch(() => {
+      setCreateClubMessage("Departments could not be loaded right now.", "error");
+    });
 
   form.addEventListener("submit", async (event) => {
     event.preventDefault();
@@ -594,24 +719,19 @@ function setupCreateClubForm() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           name: formData.get("name"),
+          departmentId: formData.get("departmentId"),
           category: formData.get("category"),
           focus: formData.get("focus"),
           contactEmail: formData.get("contactEmail"),
           currentUserEmail: currentUser?.email,
           createdBy: currentUser?.name,
+          createdByEmail: currentUser?.email,
         }),
       });
 
-      if (currentUser && result.club?.name) {
-        const nextUser = { ...currentUser, clubs: Array.isArray(currentUser.clubs) ? [...currentUser.clubs] : [] };
-        if (!nextUser.clubs.includes(result.club.name)) {
-          nextUser.clubs.push(result.club.name);
-        }
-        setCurrentUser(nextUser);
-      }
-
       form.reset();
-      setCreateClubMessage("Club created successfully.", "success");
+      populateDepartmentSelect(departmentSelect, window.uniHubDepartments || []);
+      setCreateClubMessage("Club request submitted. An admin must approve and assign it before students can join.", "success");
     } catch (error) {
       setCreateClubMessage(error.message, "error");
     }
@@ -621,6 +741,15 @@ function setupCreateClubForm() {
 function setupAdminForms() {
   const eventForm = document.getElementById("admin-event-form");
   const announcementForm = document.getElementById("admin-announcement-form");
+  const departmentForm = document.getElementById("admin-department-form");
+  const clubForm = document.getElementById("admin-club-form");
+  const adminClubDepartmentSelect = document.getElementById("admin-club-department-select");
+
+  loadDepartments()
+    .then((departments) => {
+      populateDepartmentSelect(adminClubDepartmentSelect, departments);
+    })
+    .catch(() => {});
 
   if (eventForm && eventForm.dataset.bound !== "true") {
     eventForm.dataset.bound = "true";
@@ -683,12 +812,76 @@ function setupAdminForms() {
       }
     });
   }
+
+  if (departmentForm && departmentForm.dataset.bound !== "true") {
+    departmentForm.dataset.bound = "true";
+    departmentForm.addEventListener("submit", async (event) => {
+      event.preventDefault();
+      const currentUser = getCurrentUser();
+      const formData = new FormData(departmentForm);
+
+      try {
+        setAdminDepartmentMessage("Adding department...", "info");
+        await fetchJson("/api/departments", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            actorEmail: currentUser?.email,
+            code: formData.get("code"),
+            name: formData.get("name"),
+            description: formData.get("description"),
+          }),
+        });
+
+        departmentForm.reset();
+        setAdminDepartmentMessage("Department added successfully.", "success");
+        await renderAdmin();
+      } catch (error) {
+        setAdminDepartmentMessage(error.message, "error");
+      }
+    });
+  }
+
+  if (clubForm && clubForm.dataset.bound !== "true") {
+    clubForm.dataset.bound = "true";
+    clubForm.addEventListener("submit", async (event) => {
+      event.preventDefault();
+      const currentUser = getCurrentUser();
+      const formData = new FormData(clubForm);
+
+      try {
+        setAdminClubMessage("Adding approved club...", "info");
+        await fetchJson("/api/clubs", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            actorEmail: currentUser?.email,
+            name: formData.get("name"),
+            departmentId: formData.get("departmentId"),
+            category: formData.get("category"),
+            focus: formData.get("focus"),
+            contactEmail: formData.get("contactEmail"),
+            createdBy: currentUser?.name,
+            createdByEmail: currentUser?.email,
+          }),
+        });
+
+        clubForm.reset();
+        populateDepartmentSelect(adminClubDepartmentSelect, window.uniHubDepartments || []);
+        setAdminClubMessage("Approved club added successfully.", "success");
+        await renderAdmin();
+      } catch (error) {
+        setAdminClubMessage(error.message, "error");
+      }
+    });
+  }
 }
 
 function setupAdminListActions() {
   const adminEvents = document.getElementById("admin-events");
   const adminAnnouncements = document.getElementById("admin-announcements");
   const adminClubs = document.getElementById("admin-clubs");
+  const adminDepartments = document.getElementById("admin-departments");
 
   if (adminEvents && adminEvents.dataset.bound !== "true") {
     adminEvents.dataset.bound = "true";
@@ -731,6 +924,55 @@ function setupAdminListActions() {
   if (adminClubs && adminClubs.dataset.bound !== "true") {
     adminClubs.dataset.bound = "true";
     adminClubs.addEventListener("click", async (event) => {
+      const approveButton = event.target.closest("[data-approve-club]");
+      if (approveButton) {
+        const record = approveButton.closest(".admin-record");
+        const departmentSelect = record?.querySelector(`[data-club-department="${approveButton.dataset.approveClub}"]`);
+
+        try {
+          setAdminClubMessage("Approving club...", "info");
+          await fetchJson(`/api/clubs/${approveButton.dataset.approveClub}`, {
+            method: "PUT",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              actorEmail: getCurrentUser()?.email,
+              departmentId: departmentSelect?.value || "",
+              approvalStatus: "Approved",
+            }),
+          });
+          setAdminClubMessage("Club approved and assigned.", "success");
+          await renderAdmin();
+        } catch (error) {
+          setAdminClubMessage(error.message, "error");
+        }
+        return;
+      }
+
+      const saveButton = event.target.closest("[data-save-club]");
+      if (saveButton) {
+        const record = saveButton.closest(".admin-record");
+        const departmentSelect = record?.querySelector(`[data-club-department="${saveButton.dataset.saveClub}"]`);
+        const approvalStatus = record?.querySelector("[data-approve-club]") ? "Pending Approval" : "Approved";
+
+        try {
+          setAdminClubMessage("Saving club department...", "info");
+          await fetchJson(`/api/clubs/${saveButton.dataset.saveClub}`, {
+            method: "PUT",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              actorEmail: getCurrentUser()?.email,
+              departmentId: departmentSelect?.value || "",
+              approvalStatus,
+            }),
+          });
+          setAdminClubMessage("Club department updated.", "success");
+          await renderAdmin();
+        } catch (error) {
+          setAdminClubMessage(error.message, "error");
+        }
+        return;
+      }
+
       const button = event.target.closest("[data-delete-club]");
       if (!button) return;
 
@@ -743,6 +985,25 @@ function setupAdminListActions() {
         await renderAdmin();
       } catch (error) {
         setAdminClubMessage(error.message, "error");
+      }
+    });
+  }
+
+  if (adminDepartments && adminDepartments.dataset.bound !== "true") {
+    adminDepartments.dataset.bound = "true";
+    adminDepartments.addEventListener("click", async (event) => {
+      const button = event.target.closest("[data-delete-department]");
+      if (!button) return;
+
+      if (!window.confirm("Delete this department? Clubs under it will need reassignment.")) return;
+
+      try {
+        setAdminDepartmentMessage("Removing department...", "info");
+        await deleteAdminRecord(`/api/departments/${button.dataset.deleteDepartment}`);
+        setAdminDepartmentMessage("Department deleted.", "success");
+        await renderAdmin();
+      } catch (error) {
+        setAdminDepartmentMessage(error.message, "error");
       }
     });
   }
@@ -899,9 +1160,10 @@ async function renderProfile() {
 
 async function renderAdmin() {
   const currentUser = await getLatestCurrentUser();
-  const [events, clubs, stats, announcements, users, branding] = await Promise.all([
+  const [events, clubs, departments, stats, announcements, users, branding] = await Promise.all([
     fetchJson("/api/events"),
-    fetchJson("/api/clubs"),
+    fetchJson(`/api/clubs?scope=admin&email=${encodeURIComponent(currentUser?.email || "")}`),
+    fetchJson("/api/departments"),
     fetchJson("/api/stats"),
     fetchJson("/api/announcements"),
     fetchJson(`/api/users?email=${encodeURIComponent(currentUser?.email || "")}`),
@@ -913,11 +1175,17 @@ async function renderAdmin() {
   const adminClubs = document.getElementById("admin-clubs");
   const adminAnnouncements = document.getElementById("admin-announcements");
   const adminUsers = document.getElementById("admin-users");
+  const adminDepartments = document.getElementById("admin-departments");
   const adminAccountEmail = document.getElementById("admin-account-email");
   const adminAccountName = document.getElementById("admin-account-name");
   const adminPreview = document.getElementById("admin-institution-preview");
   const adminTitle = document.getElementById("institution-title");
   const adminCaption = document.getElementById("institution-caption-input");
+  const adminClubDepartmentSelect = document.getElementById("admin-club-department-select");
+
+  window.uniHubDepartments = Array.isArray(departments) ? departments : [];
+
+  populateDepartmentSelect(adminClubDepartmentSelect, window.uniHubDepartments);
 
   if (adminAccountEmail) {
     adminAccountEmail.textContent = currentUser?.email || "Signed-in admin account";
@@ -962,8 +1230,14 @@ async function renderAdmin() {
 
   if (adminClubs) {
     adminClubs.innerHTML = clubs.length
-      ? clubs.map(adminClubMarkup).join("")
+      ? clubs.map((club) => adminClubMarkup(club)).join("")
       : emptyStateMarkup("No club records yet.");
+  }
+
+  if (adminDepartments) {
+    adminDepartments.innerHTML = departments.length
+      ? departments.map((department) => adminDepartmentMarkup(department, clubs)).join("")
+      : emptyStateMarkup("No departments have been added yet.");
   }
 
   if (adminUsers) {
@@ -977,10 +1251,29 @@ async function renderJoinClub() {
   const clubList = document.getElementById("join-club-list");
   if (!clubList) return;
 
-  const clubs = await fetchJson("/api/clubs");
-  clubList.innerHTML = clubs.length
-    ? clubs.map(joinClubItemMarkup).join("")
-    : emptyStateMarkup("No clubs are available to join yet.");
+  const [clubs, departments] = await Promise.all([fetchJson("/api/clubs"), fetchJson("/api/departments")]);
+  const groupedMarkup = departments
+    .map((department) =>
+      departmentGroupMarkup(
+        department,
+        clubs.filter((club) => String(club.departmentId || "") === String(department.id || "")),
+      ),
+    )
+    .join("");
+  const unassignedClubs = clubs.filter((club) => !club.departmentId);
+  const unassignedMarkup = unassignedClubs.length
+    ? departmentGroupMarkup(
+        {
+          id: "unassigned",
+          code: "GENERAL",
+          name: "Independent Clubs",
+          description: "Approved clubs waiting for a department reassignment.",
+        },
+        unassignedClubs,
+      )
+    : "";
+
+  clubList.innerHTML = groupedMarkup || unassignedMarkup ? `${groupedMarkup}${unassignedMarkup}` : emptyStateMarkup("No clubs are available to join yet.");
 
   const currentUser = await getLatestCurrentUser();
   const joinedCount = Array.isArray(currentUser?.clubs) ? currentUser.clubs.length : 0;

@@ -72,6 +72,7 @@
             <a href="#admin-branding">Branding</a>
             <a href="#admin-events-section">Events</a>
             <a href="#admin-announcements-section">Announcements</a>
+            <a href="#admin-departments-section">Departments</a>
             <a href="#admin-clubs-section">Clubs</a>
             <a href="#admin-users-section">Users</a>
           </nav>
@@ -204,14 +205,64 @@
             <div id="admin-announcements" class="stack-list"></div>
           </section>
 
+          <section id="admin-departments-section" class="surface-card admin-section-card">
+            <div class="card-heading">
+              <h2>Departments and Schools</h2>
+              <span class="label">Structure</span>
+            </div>
+
+            <form id="admin-department-form" class="auth-form admin-form-grid">
+              <label>
+                Department Code
+                <input type="text" name="code" placeholder="CIT" required />
+              </label>
+              <label>
+                Department Name
+                <input type="text" name="name" placeholder="School of Computing, Informatics and Technology" required />
+              </label>
+              <label class="span-2">
+                Description
+                <textarea name="description" rows="3" placeholder="Short description of the department and the clubs it hosts."></textarea>
+              </label>
+              <button type="submit" class="button span-2">Add Department</button>
+            </form>
+
+            <p id="admin-department-message" class="helper-note"></p>
+            <div id="admin-departments" class="stack-list"></div>
+          </section>
+
           <section id="admin-clubs-section" class="surface-card admin-section-card">
             <div class="card-heading">
               <h2>Club Management</h2>
-              <span class="label">Review and Remove</span>
+              <span class="label">Approve and Assign</span>
             </div>
+            <form id="admin-club-form" class="auth-form admin-form-grid">
+              <label>
+                Club Name
+                <input type="text" name="name" placeholder="Research Forum" required />
+              </label>
+              <label>
+                Department
+                <select name="departmentId" id="admin-club-department-select" required>
+                  <option value="">Select a department</option>
+                </select>
+              </label>
+              <label>
+                Category
+                <input type="text" name="category" placeholder="Research and Innovation" />
+              </label>
+              <label>
+                Contact Email
+                <input type="email" name="contactEmail" placeholder="research@institution.ac.ke" />
+              </label>
+              <label class="span-2">
+                Club Focus
+                <textarea name="focus" rows="3" placeholder="What does this club do and who is it for?"></textarea>
+              </label>
+              <button type="submit" class="button span-2">Add Approved Club</button>
+            </form>
             <p class="helper-note">
-              Students can create clubs from their workspace. Admins can review entries here
-              and remove clubs that should not remain active.
+              Student-created clubs stay pending until an admin approves them and assigns them to a department.
             </p>
             <p id="admin-club-message" class="helper-note"></p>
             <div id="admin-clubs" class="stack-list"></div>

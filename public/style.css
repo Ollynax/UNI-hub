@@ -25,12 +25,14 @@
 
 html {
   scroll-behavior: smooth;
+  -webkit-text-size-adjust: 100%;
 }
 
 body {
   margin: 0;
   font-family: "Manrope", sans-serif;
   color: var(--ink);
+  overflow-x: hidden;
   background:
     radial-gradient(circle at top left, rgba(255, 255, 255, 0.95), transparent 28%),
     linear-gradient(180deg, #f7f2ea 0%, #efe7db 100%);
@@ -46,6 +48,7 @@ input,
 textarea,
 select {
   font: inherit;
+  min-width: 0;
 }
 
 img {
@@ -61,6 +64,7 @@ img {
 .app-page,
 .auth-page {
   min-height: 100vh;
+  min-height: 100dvh;
 }
 
 .site-header {
@@ -144,6 +148,7 @@ img {
   justify-content: center;
   align-items: center;
   gap: 8px;
+  min-height: 44px;
   padding: 13px 20px;
   border: 0;
   border-radius: 999px;
@@ -822,6 +827,44 @@ img {
   border-collapse: collapse;
 }
 
+.event-card-list {
+  display: none;
+  gap: 12px;
+}
+
+.event-mobile-card {
+  display: grid;
+  gap: 14px;
+  padding: 16px;
+  border-radius: 20px;
+  background: rgba(255, 255, 255, 0.9);
+  border: 1px solid rgba(20, 38, 63, 0.08);
+}
+
+.event-mobile-header {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  align-items: center;
+}
+
+.event-mobile-meta {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.event-mobile-meta span {
+  display: inline-flex;
+  align-items: center;
+  padding: 9px 12px;
+  border-radius: 999px;
+  background: rgba(20, 38, 63, 0.05);
+  color: var(--ink);
+  font-size: 0.84rem;
+  font-weight: 700;
+}
+
 .events-table th,
 .events-table td {
   padding: 14px 12px;
@@ -1056,6 +1099,68 @@ img {
   color: var(--ink);
   font-size: 0.86rem;
   font-weight: 700;
+}
+
+.admin-inline-form {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 12px;
+  align-items: end;
+}
+
+.admin-inline-form label {
+  display: grid;
+  gap: 8px;
+  font-weight: 700;
+  color: var(--ink);
+}
+
+.admin-inline-form select {
+  width: 100%;
+  padding: 14px 16px;
+  border-radius: 14px;
+  border: 1px solid rgba(20, 38, 63, 0.12);
+  background: #fffdf9;
+  color: var(--ink);
+}
+
+.department-cluster {
+  padding: 22px;
+  border-radius: 24px;
+  background: rgba(255, 255, 255, 0.82);
+  border: 1px solid rgba(20, 38, 63, 0.08);
+  box-shadow: var(--shadow-md);
+}
+
+.department-cluster-header {
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+  align-items: flex-start;
+  margin-bottom: 10px;
+}
+
+.department-cluster h3 {
+  margin: 0;
+  font-family: "Space Grotesk", sans-serif;
+  font-size: 1.2rem;
+}
+
+.department-count {
+  display: inline-flex;
+  align-items: center;
+  padding: 10px 14px;
+  border-radius: 999px;
+  background: rgba(15, 108, 116, 0.08);
+  color: var(--primary-dark);
+  font-size: 0.84rem;
+  font-weight: 800;
+}
+
+.department-cluster-copy {
+  margin: 0 0 18px;
+  color: var(--muted);
+  line-height: 1.65;
 }
 
 .user-directory {
@@ -1436,11 +1541,13 @@ body:not([data-page="home"]):not([data-page="landing"]) .events-table tbody tr:h
   color: var(--muted);
   font-size: 0.9rem;
   line-height: 1.55;
+  overflow-wrap: anywhere;
 }
 
 .table-meta-text {
   color: #53637d;
   font-weight: 600;
+  overflow-wrap: anywhere;
 }
 
 body:not([data-page="home"]):not([data-page="landing"]) .announcement-card {
@@ -1475,6 +1582,7 @@ body:not([data-page="home"]):not([data-page="landing"]) .announcement-card {
   color: #7d6d4f;
   font-size: 0.82rem;
   font-weight: 700;
+  overflow-wrap: anywhere;
 }
 
 .soft-list div {
@@ -2158,6 +2266,14 @@ body:not([data-page="home"]):not([data-page="landing"]) .admin-user-card {
 }
 
 @media (max-width: 860px) {
+  .admin-inline-form {
+    grid-template-columns: 1fr;
+  }
+
+  .department-cluster-header {
+    flex-direction: column;
+  }
+
   .auth-facts {
     grid-template-columns: 1fr;
   }
@@ -2207,5 +2323,182 @@ body:not([data-page="home"]):not([data-page="landing"]) .admin-user-card {
 
   .institution-media {
     min-height: 360px;
+  }
+}
+
+@media (max-width: 640px) {
+  .shell {
+    width: min(1180px, calc(100vw - 24px));
+  }
+
+  .site-header {
+    position: sticky;
+    top: 0;
+  }
+
+  .topbar {
+    gap: 14px;
+    padding: 14px 0;
+  }
+
+  .brand {
+    width: 100%;
+  }
+
+  .brand-mark,
+  .profile-avatar {
+    width: 48px;
+    height: 48px;
+    border-radius: 16px;
+  }
+
+  .app-shell,
+  .hero-section,
+  .section-block,
+  .auth-page {
+    padding-top: 20px;
+    padding-bottom: 36px;
+  }
+
+  .surface-card,
+  .dream-card,
+  [data-page="landing"] .landing-card,
+  .department-cluster {
+    padding: 18px;
+  }
+
+  .page-hero {
+    padding: 20px;
+    gap: 16px;
+  }
+
+  .page-hero h1,
+  .dream-title,
+  [data-page="landing"] .landing-card h1 {
+    font-size: clamp(2.3rem, 12vw, 3.4rem);
+  }
+
+  .card-heading,
+  .admin-record-header,
+  .admin-user-header,
+  .event-mobile-header,
+  .profile-hero {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .site-nav {
+    flex-direction: row;
+    flex-wrap: nowrap;
+    align-items: center;
+    overflow-x: auto;
+    overscroll-behavior-x: contain;
+    scroll-snap-type: x proximity;
+    padding-bottom: 4px;
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+
+  .site-nav::-webkit-scrollbar {
+    display: none;
+  }
+
+  .site-nav a,
+  .site-nav .button,
+  .site-nav .nav-link {
+    width: auto;
+    min-width: max-content;
+    flex: 0 0 auto;
+    scroll-snap-align: start;
+    white-space: nowrap;
+  }
+
+  .hero-actions,
+  .metric-row {
+    width: 100%;
+  }
+
+  .preview-item,
+  .club-card,
+  .phone-card {
+    grid-template-columns: 1fr;
+    align-items: flex-start;
+  }
+
+  .preview-date {
+    width: auto;
+    min-width: 74px;
+    justify-self: start;
+  }
+
+  .club-meta,
+  .table-action,
+  .join-club-button {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .page-side-note .stat-grid,
+  .stat-grid,
+  .stat-grid-compact {
+    grid-template-columns: 1fr;
+  }
+
+  .events-table {
+    display: none;
+  }
+
+  .table-shell {
+    overflow: visible;
+  }
+
+  .event-card-list {
+    display: grid;
+  }
+
+  .event-mobile-meta span,
+  .admin-record-meta span,
+  .joined-clubs span,
+  .status-tag,
+  .page-tag {
+    max-width: 100%;
+    overflow-wrap: anywhere;
+  }
+
+  .admin-record-actions,
+  .page-meta,
+  .page-tag-row {
+    width: 100%;
+  }
+
+  .admin-record-actions .button,
+  .admin-inline-form .button,
+  .admin-inline-form label,
+  .page-side-note,
+  .department-count {
+    width: 100%;
+  }
+
+  .admin-record-meta {
+    gap: 8px;
+  }
+
+  .admin-upload-preview {
+    min-height: 220px;
+  }
+
+  input,
+  textarea,
+  select {
+    font-size: 16px;
+  }
+
+  .helper-note,
+  .auth-mini-note,
+  .department-cluster-copy,
+  .page-hero p,
+  .club-card p,
+  .announcement-card p {
+    overflow-wrap: anywhere;
   }
 }
