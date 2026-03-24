@@ -253,6 +253,290 @@ function setupAdminVisibility() {
   });
 }
 
+function slugify(value) {
+  return String(value ?? "")
+    .trim()
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/(^-|-$)/g, "");
+}
+
+function isVisible(element) {
+  if (!element || element.hidden) return false;
+  const styles = window.getComputedStyle(element);
+  return styles.display !== "none" && styles.visibility !== "hidden";
+}
+
+function ensureSearchTargetId(element, index) {
+  if (element.id) return element.id;
+
+  const heading = element.querySelector("h1, h2, h3");
+  const base = slugify(heading?.textContent || `section-${index + 1}`) || `section-${index + 1}`;
+  let candidate = base;
+  let suffix = 1;
+
+  while (document.getElementById(candidate)) {
+    candidate = `${base}-${suffix}`;
+    suffix += 1;
+  }
+
+  element.id = candidate;
+  return candidate;
+}
+
+function collectHeaderSearchItems() {
+  const items = [];
+  const seen = new Set();
+  const currentPageLabel = document.querySelector(".brand-name")?.textContent.trim() || document.title;
+
+  const pushItem = (item) => {
+    const key = `${item.href}::${item.label}`.toLowerCase();
+    if (!item.label || !item.href || seen.has(key)) return;
+    seen.add(key);
+    items.push(item);
+  };
+
+  document.querySelectorAll(".site-nav a[href]").forEach((link) => {
+    if (!isVisible(link)) return;
+
+    const href = link.getAttribute("href") || "";
+    const label = link.textContent.trim();
+    const type = href.startsWith("#") ? "Section" : "Page";
+    const description = href === window.location.pathname ? "You are already here." : "Open this quick link.";
+    const meta = href.startsWith("#") ? currentPageLabel : "Primary navigation";
+
+    pushItem({ href, label, type, description, meta });
+  });
+
+  document.querySelectorAll("main > section, main > article, main .page-hero, main .section-block, main .admin-section-card").forEach((section, index) => {
+    const heading = section.querySelector("h1, h2, h3");
+    if (!heading) return;
+
+    const label = heading.textContent.trim();
+    if (!label) return;
+
+    const descriptionSource = section.querySelector("p");
+    const description = truncateText(descriptionSource?.textContent || "Jump to this section.", 96);
+    const id = section.id || ensureSearchTargetId(section, index);
+
+    pushItem({
+      href: `#${id}`,
+      label,
+      type: "Section",
+      description,
+      meta: currentPageLabel,
+    });
+  });
+
+  return items;
+}
+
+function renderHeaderSearchResults(resultsNode, items) {
+  if (!resultsNode) return;
+
+  if (!items.length) {
+    resultsNode.innerHTML = '<div class="header-search-empty">No matches yet. Try a page name, section title, or action.</div>';
+    return;
+  }
+
+  resultsNode.innerHTML = items
+    .slice(0, 8)
+    .map(
+      (item) => `
+        <a href="${escapeHtml(item.href)}" class="header-search-result">
+          <span class="header-search-result-type">${escapeHtml(item.type)}</span>
+          <strong>${escapeHtml(item.label)}</strong>
+          <p>${escapeHtml(item.description)}</p>
+          <span class="header-search-result-meta">${escapeHtml(item.meta)}</span>
+        </a>
+      `,
+    )
+    .join("");
+}
+
+function setupHeaderInteractions() {
+  const header = document.querySelector(".site-header");
+  if (!header || header.dataset.bound === "true") return;
+  header.dataset.bound = "true";
+
+  const frame = header.querySelector(".header-frame");
+  const menuToggle = header.querySelector(".header-menu-toggle");
+  const nav = header.querySelector(".site-nav");
+  const searchToggle = header.querySelector("[data-header-search-toggle]");
+  const searchPanel = header.querySelector(".header-search-panel");
+  const searchInput = header.querySelector(".header-search-input");
+  const resultsNode = header.querySelector("[data-header-search-results]");
+  const canUsePointerParallax = window.matchMedia("(hover: hover) and (pointer: fine)").matches;
+
+  const setCondensedState = () => {
+    header.classList.toggle("is-condensed", window.scrollY > 18);
+  };
+
+  const syncOverlayState = () => {
+    document.body.classList.toggle(
+      "header-overlay-open",
+      window.innerWidth <= 960 &&
+        (header.classList.contains("is-menu-open") || header.classList.contains("is-search-open")),
+    );
+  };
+
+  const closeMenu = () => {
+    header.classList.remove("is-menu-open");
+    if (menuToggle) menuToggle.setAttribute("aria-expanded", "false");
+    syncOverlayState();
+  };
+
+  const openMenu = () => {
+    closeSearch();
+    header.classList.add("is-menu-open");
+    if (menuToggle) menuToggle.setAttribute("aria-expanded", "true");
+    syncOverlayState();
+  };
+
+  const updateSearchResults = (query = "") => {
+    const normalizedQuery = query.trim().toLowerCase();
+    const allItems = collectHeaderSearchItems();
+    const filteredItems = normalizedQuery
+      ? allItems.filter((item) => `${item.label} ${item.description} ${item.meta}`.toLowerCase().includes(normalizedQuery))
+      : allItems;
+
+    renderHeaderSearchResults(resultsNode, filteredItems);
+  };
+
+  const closeSearch = () => {
+    header.classList.remove("is-search-open");
+    if (searchToggle) searchToggle.setAttribute("aria-expanded", "false");
+    if (searchPanel) searchPanel.hidden = true;
+    syncOverlayState();
+  };
+
+  const openSearch = () => {
+    if (!searchPanel) return;
+    closeMenu();
+    header.classList.add("is-search-open");
+    if (searchToggle) searchToggle.setAttribute("aria-expanded", "true");
+    searchPanel.hidden = false;
+    updateSearchResults(searchInput?.value || "");
+    syncOverlayState();
+    window.requestAnimationFrame(() => {
+      searchInput?.focus();
+      searchInput?.select();
+    });
+  };
+
+  if (menuToggle && nav) {
+    menuToggle.addEventListener("click", () => {
+      if (header.classList.contains("is-menu-open")) {
+        closeMenu();
+      } else {
+        openMenu();
+      }
+    });
+
+    nav.addEventListener("click", (event) => {
+      const link = event.target.closest("a");
+      if (link && window.innerWidth <= 960) {
+        closeMenu();
+      }
+    });
+  }
+
+  if (searchToggle && searchPanel) {
+    searchToggle.addEventListener("click", () => {
+      if (header.classList.contains("is-search-open")) {
+        closeSearch();
+      } else {
+        openSearch();
+      }
+    });
+  }
+
+  if (searchInput) {
+    searchInput.addEventListener("input", () => {
+      updateSearchResults(searchInput.value);
+    });
+
+    searchInput.addEventListener("keydown", (event) => {
+      if (event.key !== "Enter") return;
+
+      const firstResult = resultsNode?.querySelector("a[href]");
+      if (!firstResult) return;
+
+      event.preventDefault();
+      firstResult.click();
+    });
+  }
+
+  if (resultsNode) {
+    resultsNode.addEventListener("click", (event) => {
+      const link = event.target.closest("a[href]");
+      if (!link) return;
+
+      const href = link.getAttribute("href") || "";
+      closeSearch();
+
+      if (href.startsWith("#")) {
+        event.preventDefault();
+        const target = document.querySelector(href);
+        if (target) {
+          target.scrollIntoView({ behavior: "smooth", block: "start" });
+        }
+      }
+    });
+  }
+
+  document.addEventListener("click", (event) => {
+    if (header.contains(event.target)) return;
+    closeMenu();
+    closeSearch();
+  });
+
+  document.addEventListener("keydown", (event) => {
+    const activeTag = document.activeElement?.tagName;
+    const isTypingField =
+      document.activeElement?.isContentEditable || ["INPUT", "TEXTAREA", "SELECT"].includes(activeTag);
+
+    if (event.key === "/" && !event.metaKey && !event.ctrlKey && !event.altKey && !isTypingField) {
+      event.preventDefault();
+      openSearch();
+    }
+
+    if (event.key === "Escape") {
+      closeMenu();
+      closeSearch();
+    }
+  });
+
+  window.addEventListener("scroll", setCondensedState, { passive: true });
+  window.addEventListener("resize", () => {
+    if (window.innerWidth > 960) closeMenu();
+    syncOverlayState();
+  });
+
+  if (frame && canUsePointerParallax) {
+    frame.addEventListener("pointermove", (event) => {
+      const bounds = frame.getBoundingClientRect();
+      const relativeX = bounds.width ? (event.clientX - bounds.left) / bounds.width : 0.5;
+      const relativeY = bounds.height ? (event.clientY - bounds.top) / bounds.height : 0.5;
+      frame.style.setProperty("--header-glow-x", `${Math.round(relativeX * 100)}%`);
+      frame.style.setProperty("--header-glow-y", `${Math.round(relativeY * 100)}%`);
+      frame.style.setProperty("--scene-shift-x", `${((relativeX - 0.5) * 10).toFixed(2)}px`);
+      frame.style.setProperty("--scene-shift-y", `${((relativeY - 0.5) * 6).toFixed(2)}px`);
+    });
+
+    frame.addEventListener("pointerleave", () => {
+      frame.style.setProperty("--header-glow-x", "50%");
+      frame.style.setProperty("--header-glow-y", "18%");
+      frame.style.setProperty("--scene-shift-x", "0px");
+      frame.style.setProperty("--scene-shift-y", "0px");
+    });
+  }
+
+  setCondensedState();
+  updateSearchResults();
+  syncOverlayState();
+}
+
 function emptyStateMarkup(message) {
   return `<div class="empty-state">${escapeHtml(message)}</div>`;
 }
@@ -1314,6 +1598,7 @@ async function initPage() {
   if (!(await setupAuthFlows())) return;
 
   setupAdminVisibility();
+  setupHeaderInteractions();
 
   if (page === "home") {
     await renderHome();

@@ -14,22 +14,72 @@
   </head>
   <body data-page="dashboard" class="app-page">
     <header class="site-header">
-      <div class="shell topbar">
-        <a href="/" class="brand">
-          <span class="brand-mark">U</span>
-          <span>
-            <span class="eyebrow">Student Workspace</span>
-            <strong class="brand-name">UNI Hub Dashboard</strong>
-          </span>
-        </a>
-        <nav class="site-nav">
-          <a href="/dashboard" class="active-link">Dashboard</a>
-          <a href="/profile">Profile</a>
-          <a href="/joinclub">Join a Club</a>
-          <a href="/createclub">Create a Club</a>
-          <a href="/adminpanel" data-admin-link>Admin</a>
-          <a href="/login" class="button secondary" id="logout-link">Log Out</a>
-        </nav>
+      <div class="shell">
+        <div class="header-frame">
+          <div class="header-scene" aria-hidden="true">
+            <span class="header-stars"></span>
+            <span class="header-cloud header-cloud-left"></span>
+            <span class="header-cloud header-cloud-right"></span>
+            <span class="header-ridge header-ridge-back"></span>
+            <span class="header-ridge header-ridge-front"></span>
+            <span class="header-waterline"></span>
+          </div>
+          <div class="topbar">
+            <a href="/" class="brand">
+              <span class="brand-mark">U</span>
+              <span>
+                <span class="eyebrow">Student Workspace</span>
+                <strong class="brand-name">UNI Hub Dashboard</strong>
+              </span>
+            </a>
+            <button
+              type="button"
+              class="header-menu-toggle"
+              aria-expanded="false"
+              aria-controls="site-header-nav"
+              aria-label="Toggle navigation"
+            >
+              <span></span>
+              <span></span>
+              <span></span>
+            </button>
+            <nav class="site-nav" id="site-header-nav" aria-label="Primary">
+              <a href="/dashboard" class="active-link">Dashboard</a>
+              <a href="/profile">Profile</a>
+              <a href="/joinclub">Join a Club</a>
+              <a href="/createclub">Create a Club</a>
+              <a href="/adminpanel" data-admin-link>Admin</a>
+              <a href="/login" class="button secondary" id="logout-link">Log Out</a>
+            </nav>
+            <div class="header-actions">
+              <button
+                type="button"
+                class="header-search-button"
+                data-header-search-toggle
+                aria-expanded="false"
+                aria-controls="site-header-search"
+              >
+                <span class="header-search-icon" aria-hidden="true"></span>
+                <span>Search</span>
+              </button>
+            </div>
+          </div>
+          <div class="header-search-panel" id="site-header-search" hidden>
+            <label class="sr-only" for="site-header-search-input">Search pages and sections</label>
+            <div class="header-search-field">
+              <span class="header-search-icon" aria-hidden="true"></span>
+              <input
+                id="site-header-search-input"
+                class="header-search-input"
+                type="search"
+                placeholder="Jump to a page or section"
+                autocomplete="off"
+              />
+              <span class="header-search-shortcut">/</span>
+            </div>
+            <div class="header-search-results" data-header-search-results></div>
+          </div>
+        </div>
       </div>
     </header>
 
