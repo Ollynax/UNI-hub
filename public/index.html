@@ -7,7 +7,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
-      href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Space+Grotesk:wght@500;700&display=swap"
+      href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@600;700&family=Manrope:wght@400;500;600;700;800&family=Space+Grotesk:wght@500;700&display=swap"
       rel="stylesheet"
     />
     <link rel="stylesheet" href="/style.css" />
@@ -33,15 +33,27 @@
     </header>
 
     <main>
-      <section class="hero-section">
-        <div class="shell hero-grid" id="platform">
-          <div class="hero-copy">
+      <section class="hero-section dream-hero">
+        <div class="shell dream-scene" id="platform">
+          <article class="surface-card ambient-panel ambient-panel-left">
+            <div class="card-heading">
+              <h3>Tonight's Feed</h3>
+              <span class="label">Events</span>
+            </div>
+            <p class="panel-intro">
+              Keep the next event visible at a glance so students can move from curiosity
+              to RSVP without digging through clutter.
+            </p>
+            <div id="hero-events" class="stack-list"></div>
+          </article>
+
+          <article class="surface-card dream-card">
             <p class="eyebrow">Campus Event and Club Management System</p>
-            <h1>Professional tools for student events, clubs, communication, and engagement.</h1>
+            <h1 class="dream-title">A dreamy front door for campus life.</h1>
             <p class="hero-lead">
-              UNI Hub helps institutions organize student life through one connected
-              workspace for event publishing, club management, RSVP tracking, announcements,
-              and campus activity oversight.
+              UNI Hub brings events, clubs, announcements, and RSVP tracking into one
+              warm sunset-toned experience that still feels structured, clear, and ready
+              for everyday student use.
             </p>
             <div class="hero-actions">
               <a href="/register" class="button">Create Account</a>
@@ -49,55 +61,74 @@
             </div>
             <div class="metric-row">
               <article class="metric-card">
-                <span>Structured workflows</span>
-                <strong>Events, clubs, and communication in one system</strong>
+                <span>One connected flow</span>
+                <strong>Publish events, spotlight clubs, and guide students from discovery to attendance.</strong>
               </article>
               <article class="metric-card">
-                <span>Professional visibility</span>
-                <strong>Present campus activity through a cleaner digital front door</strong>
+                <span>Beautiful visibility</span>
+                <strong>Give your institution a homepage that feels vibrant, current, and easy to trust.</strong>
               </article>
             </div>
-          </div>
-
-          <div class="hero-visual">
-            <article class="institution-card institution-media">
-              <img
-                id="institution-image"
-                src="https://images.unsplash.com/photo-1562774053-701939374585?auto=format&fit=crop&w=1600&q=80"
-                alt="Institution campus"
-              />
-              <div class="institution-overlay">
+            <div class="institution-spotlight">
+              <div class="institution-thumb">
+                <img
+                  id="institution-image"
+                  src="https://images.unsplash.com/photo-1562774053-701939374585?auto=format&fit=crop&w=1600&q=80"
+                  alt="Institution campus"
+                />
+              </div>
+              <div class="institution-copy">
                 <p class="eyebrow">Institution Identity</p>
                 <h2 id="institution-name">Your Institution, Presented Clearly</h2>
                 <p id="institution-caption">
                   Administrators can manage the institution image, title, and homepage message from the admin workspace.
                 </p>
               </div>
-            </article>
-
-            <div class="hero-panels">
-              <article class="surface-card">
-                <div class="card-heading">
-                  <h3>Upcoming Activity</h3>
-                  <span class="label">Live Preview</span>
-                </div>
-                <div id="hero-events" class="stack-list"></div>
-              </article>
-              <article class="surface-card">
-                <div class="card-heading">
-                  <h3>Active Clubs</h3>
-                  <span class="label">Directory</span>
-                </div>
-                <div id="hero-clubs" class="stack-list"></div>
-              </article>
             </div>
-          </div>
+          </article>
+
+          <article class="surface-card ambient-panel ambient-panel-right">
+            <div class="card-heading">
+              <h3>Club Spotlight</h3>
+              <span class="label">Live</span>
+            </div>
+            <p class="panel-intro">
+              Let communities stay visible on the landing page before students even sign in.
+            </p>
+            <div id="hero-clubs" class="stack-list"></div>
+          </article>
         </div>
       </section>
 
-      <section class="section-block">
+      <section class="section-block muted-block glow-block" id="modules">
         <div class="shell">
-          <div class="section-heading">
+          <div class="preview-grid home-preview-grid">
+            <div class="section-heading compact home-section-heading">
+              <p class="eyebrow">What Students See</p>
+              <h2>Soft visuals, clear actions, and fewer clicks between discovery and showing up.</h2>
+              <p>
+                The interface keeps the twilight mood from the landing page while still
+                focusing on the practical details students need most: dates, locations,
+                clubs, and next steps.
+              </p>
+            </div>
+            <article class="surface-card mobile-preview phone-preview-panel">
+              <div class="card-heading">
+                <h3>Event Feed</h3>
+                <span class="label">Mobile</span>
+              </div>
+              <div class="phone-frame">
+                <div class="phone-bar"></div>
+                <div class="phone-screen">
+                  <div class="phone-title">Campus Events</div>
+                  <div id="phone-events" class="stack-list"></div>
+                </div>
+              </div>
+            </article>
+          </div>
+        </div>
+        <div class="shell">
+          <div class="section-heading home-section-heading">
             <p class="eyebrow">Platform Value</p>
             <h2>Designed for students, organizers, and administrators together.</h2>
             <p>
@@ -130,33 +161,11 @@
         </div>
       </section>
 
-      <section class="section-block muted-block" id="modules">
-        <div class="shell preview-grid">
-          <div class="section-heading compact">
-            <p class="eyebrow">What Students See</p>
-            <h2>A cleaner experience from discovery to participation.</h2>
-            <p>
-              The platform homepage, dashboard, and mobile event views work together to
-              make campus activity easier to understand and easier to act on.
-            </p>
-          </div>
-          <article class="surface-card mobile-preview">
-            <div class="phone-frame">
-              <div class="phone-bar"></div>
-              <div class="phone-screen">
-                <div class="phone-title">Campus Events</div>
-                <div id="phone-events" class="stack-list"></div>
-              </div>
-            </div>
-          </article>
-        </div>
-      </section>
-
-      <section class="section-block" id="operations">
+      <section class="section-block horizon-block" id="operations">
         <div class="shell">
-          <div class="section-heading">
+          <div class="section-heading home-section-heading">
             <p class="eyebrow">Operational Flow</p>
-            <h2>Built around real campus coordination.</h2>
+            <h2>Built around real campus coordination, not just a pretty screen.</h2>
           </div>
           <div class="ops-grid">
             <article class="surface-card ops-card">

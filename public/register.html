@@ -7,31 +7,42 @@
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
-      href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Space+Grotesk:wght@500;700&display=swap"
+      href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@600;700&family=Manrope:wght@400;500;600;700;800&family=Space+Grotesk:wght@500;700&display=swap"
       rel="stylesheet"
     />
     <link rel="stylesheet" href="/style.css" />
   </head>
   <body data-page="register" class="auth-page">
-    <main class="shell auth-layout">
-      <section class="auth-aside surface-card">
-        <p class="eyebrow">Create an Account</p>
-        <h1>Join your institution's UNI Hub workspace.</h1>
+    <main class="shell auth-layout auth-layout-editorial">
+      <section class="auth-aside surface-card auth-feature-panel">
+        <p class="eyebrow">Join UNI Hub</p>
+        <h1>Build a student profile that feels like yours.</h1>
         <p>
-          Register to access the dashboard, participate in events, discover clubs,
-          and manage your student activity profile.
+          Create your account once, then use it to RSVP, join organizations,
+          and keep your campus activity in one place.
         </p>
+        <div class="auth-facts">
+          <article class="auth-fact">
+            <strong>One profile</strong>
+            <span>Your dashboard, club memberships, and attendance stay connected.</span>
+          </article>
+          <article class="auth-fact">
+            <strong>Better discovery</strong>
+            <span>Find events and communities without starting from scratch each time.</span>
+          </article>
+        </div>
         <div class="auth-points">
-          <span>Single student activity workspace</span>
-          <span>Professional event and club access</span>
-          <span>Personalized dashboard experience</span>
+          <span>Join clubs and keep memberships tied to your account</span>
+          <span>Track RSVPs and activity in one calmer workspace</span>
+          <span>Give organizers enough detail to make the experience feel personal</span>
         </div>
       </section>
 
-      <section class="auth-card surface-card wide-auth-card">
+      <section class="auth-card surface-card auth-form-panel wide-auth-card">
         <div class="auth-header">
           <p class="eyebrow">Register</p>
           <h2>Create your UNI Hub account</h2>
+          <p class="auth-subtitle">A few details now makes the rest of the experience feel far less anonymous.</p>
         </div>
         <form class="auth-form grid-form" id="register-form">
           <label>
@@ -65,6 +76,9 @@
           <button type="submit" class="button full span-2">Create Account</button>
         </form>
         <p class="auth-error" id="auth-message"></p>
+        <p class="auth-foot">
+          Already registered? <a href="/login">Sign in instead</a>
+        </p>
       </section>
     </main>
     <script src="/script.js"></script>

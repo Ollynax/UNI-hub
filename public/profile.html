@@ -7,7 +7,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
-      href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Space+Grotesk:wght@500;700&display=swap"
+      href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@600;700&family=Manrope:wght@400;500;600;700;800&family=Space+Grotesk:wght@500;700&display=swap"
       rel="stylesheet"
     />
     <link rel="stylesheet" href="/style.css" />
@@ -34,14 +34,46 @@
     </header>
 
     <main class="shell app-shell">
-      <section class="page-hero surface-card">
-        <div>
+      <section class="page-hero surface-card profile-hero-card">
+        <div class="page-hero-copy">
           <p class="eyebrow">Profile Overview</p>
-          <h1>Your student workspace profile.</h1>
-          <p>Review your account details, activity summary, and club memberships in one place.</p>
+          <h1>Your campus profile, without the clutter.</h1>
+          <p>
+            Review the parts that matter: who you are, where you are involved,
+            and what UNI Hub is already keeping track of for you.
+          </p>
+          <div class="page-tag-row">
+            <span class="page-tag">Memberships</span>
+            <span class="page-tag">Activity snapshot</span>
+            <span class="page-tag">Student details</span>
+          </div>
         </div>
       </section>
-      <section id="profile-card" class="profile-layout"></section>
+      <section class="dashboard-grid profile-dashboard">
+        <section id="profile-card" class="profile-layout span-8"></section>
+        <article class="surface-card span-4 context-panel">
+          <div class="card-heading">
+            <div>
+              <h2>Profile Rhythm</h2>
+              <p class="section-intro-text">A quick way to tell if your UNI Hub profile still feels current.</p>
+            </div>
+          </div>
+          <div class="soft-list compact-soft-list">
+            <div>
+              <strong>Keep memberships accurate</strong>
+              <p>Your joined clubs tell the clearest story about where you spend time.</p>
+            </div>
+            <div>
+              <strong>Check your student details</strong>
+              <p>Department, year, and ID help organizers recognize who is attending.</p>
+            </div>
+            <div>
+              <strong>Use it as your anchor</strong>
+              <p>As you RSVP and join groups, this page becomes the simplest summary of your activity.</p>
+            </div>
+          </div>
+        </article>
+      </section>
     </main>
 
     <script src="/script.js"></script>

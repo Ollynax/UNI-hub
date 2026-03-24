@@ -7,7 +7,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
-      href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Space+Grotesk:wght@500;700&display=swap"
+      href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@600;700&family=Manrope:wght@400;500;600;700;800&family=Space+Grotesk:wght@500;700&display=swap"
       rel="stylesheet"
     />
     <link rel="stylesheet" href="/style.css" />
@@ -32,30 +32,38 @@
     </header>
 
     <main class="shell app-shell">
-      <section class="page-hero surface-card">
-        <div>
-          <p class="eyebrow">Admin Control Centre</p>
-          <h1>Manage the full UNI Hub platform from one separate workspace.</h1>
+      <section class="page-hero surface-card admin-hero">
+        <div class="page-hero-copy">
+          <p class="eyebrow">Administrative Workspace</p>
+          <h1>Keep the platform lively, accurate, and easy to trust.</h1>
           <p>
-            Publish events, manage announcements, review clubs, update institution branding,
-            and monitor the current user directory from a dedicated admin environment.
+            Use this control room to publish what is real, remove what is stale,
+            and keep the student-facing experience feeling current.
           </p>
+          <div class="page-tag-row">
+            <span class="page-tag">Publishing</span>
+            <span class="page-tag">Review</span>
+            <span class="page-tag">Institution identity</span>
+          </div>
         </div>
-        <div class="page-meta column">
-          <span class="role-chip">Admin Only</span>
-          <span id="admin-account-name">Administrator</span>
-          <span id="admin-account-email">Signed-in admin account</span>
-        </div>
+        <aside class="page-side-note">
+          <p class="eyebrow">Signed In As</p>
+          <div class="page-meta column">
+            <span class="role-chip">Admin Only</span>
+            <span id="admin-account-name">Administrator</span>
+            <span id="admin-account-email">Signed-in admin account</span>
+          </div>
+        </aside>
       </section>
 
       <section class="admin-workspace">
         <aside class="surface-card admin-sidebar">
           <div>
-            <p class="eyebrow">Workspace Navigation</p>
-            <h2>Manage everything in one flow.</h2>
+            <p class="eyebrow">Control Map</p>
+            <h2>A calmer place to run the messy parts.</h2>
             <p>
-              This panel is separate from the student dashboard so administrative tasks stay
-              organized and easier to operate.
+              This workspace keeps operational tasks away from the student view so
+              edits, cleanup, and publishing decisions stay easier to manage.
             </p>
           </div>
 
@@ -68,9 +76,20 @@
             <a href="#admin-users-section">Users</a>
           </nav>
 
+          <div class="soft-list compact-soft-list">
+            <div>
+              <strong>Keep it current</strong>
+              <p>Outdated event details erode trust faster than a missing feature.</p>
+            </div>
+            <div>
+              <strong>Publish clearly</strong>
+              <p>Students respond better when titles, dates, and next steps are obvious.</p>
+            </div>
+          </div>
+
           <p class="helper-note">
-            User roles stay controlled in MongoDB. This workspace manages platform content,
-            visibility, and presentation.
+            Roles stay controlled in MongoDB. This UI focuses on content, visibility,
+            and presentation rather than permissions management.
           </p>
         </aside>
 

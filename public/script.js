@@ -30,6 +30,27 @@ function escapeHtml(value) {
   });
 }
 
+function truncateText(value, maxLength = 110) {
+  const text = String(value ?? "").trim();
+  if (!text) return "";
+  if (text.length <= maxLength) return text;
+  return `${text.slice(0, maxLength).trimEnd()}...`;
+}
+
+function getInitials(value, fallback = "U") {
+  const parts = String(value ?? "")
+    .trim()
+    .split(/\s+/)
+    .filter(Boolean);
+
+  if (!parts.length) return fallback;
+
+  return parts
+    .slice(0, 2)
+    .map((part) => part[0]?.toUpperCase() || "")
+    .join("");
+}
+
 function isAuthenticated() {
   return window.localStorage.getItem("uniHubAuth") === "true";
 }
@@ -242,6 +263,8 @@ function getClubBadge(club) {
 }
 
 function previewEventMarkup(event) {
+  const metaLine = [event.category || "Campus activity", event.time].filter(Boolean).join(" - ");
+
   return `
     <article class="preview-item">
       <div class="preview-date">
@@ -251,7 +274,7 @@ function previewEventMarkup(event) {
       <div class="preview-copy">
         <h4>${escapeHtml(event.title)}</h4>
         <p>${escapeHtml(event.location || "Location pending")}</p>
-        <small>${escapeHtml(event.category || "Campus activity")}</small>
+        <small>${escapeHtml(metaLine || "Campus activity")}</small>
       </div>
       <button type="button" class="table-action">${escapeHtml(event.actionLabel || "View")}</button>
     </article>
@@ -259,6 +282,8 @@ function previewEventMarkup(event) {
 }
 
 function mobileEventMarkup(event) {
+  const metaLine = [event.location || "Location pending", event.time].filter(Boolean).join(" - ");
+
   return `
     <article class="phone-card">
       <div class="preview-date">
@@ -267,19 +292,22 @@ function mobileEventMarkup(event) {
       </div>
       <div class="preview-copy">
         <h4>${escapeHtml(event.title)}</h4>
-        <p>${escapeHtml(event.location || "Location pending")}</p>
+        <p>${escapeHtml(metaLine)}</p>
       </div>
     </article>
   `;
 }
 
 function clubMarkup(club) {
+  const clubSecondary = [club.category, club.contactEmail].filter(Boolean).join(" - ") || "Student organization";
+
   return `
     <article class="club-card">
       <div class="club-icon">${escapeHtml(getClubBadge(club))}</div>
-      <div>
+      <div class="club-card-copy">
         <h4>${escapeHtml(club.name)}</h4>
         <p>${escapeHtml(club.focus || "Club information will appear here.")}</p>
+        <small class="club-secondary">${escapeHtml(clubSecondary)}</small>
       </div>
       <span class="club-meta">${escapeHtml(club.members || 0)} members</span>
     </article>
@@ -287,12 +315,15 @@ function clubMarkup(club) {
 }
 
 function joinClubItemMarkup(club) {
+  const clubSecondary = [club.category, club.contactEmail].filter(Boolean).join(" - ") || "Student organization";
+
   return `
     <article class="club-card">
       <div class="club-icon">${escapeHtml(getClubBadge(club))}</div>
-      <div>
+      <div class="club-card-copy">
         <h4>${escapeHtml(club.name)}</h4>
         <p>${escapeHtml(club.focus || "Club information will appear here.")}</p>
+        <small class="club-secondary">${escapeHtml(clubSecondary)}</small>
       </div>
       <button type="button" class="table-action join-club-button" data-club-id="${escapeHtml(club.id)}">Join</button>
     </article>
@@ -302,8 +333,9 @@ function joinClubItemMarkup(club) {
 function announcementMarkup(item) {
   return `
     <article class="announcement-card">
+      <span class="announcement-kicker">Campus note</span>
       <h4>${escapeHtml(item.title)}</h4>
-      <p>${escapeHtml(item.detail || "Announcement details will appear here.")}</p>
+      <p>${escapeHtml(truncateText(item.detail || "Announcement details will appear here.", 160))}</p>
     </article>
   `;
 }
@@ -337,16 +369,28 @@ function eventTableMarkup(events) {
       <tbody>
         ${events
           .map(
-            (event) => `
+            (event) => {
+              const note = truncateText(
+                event.description || `${event.category || "Campus activity"} at ${event.location || "Location pending"}.`,
+                100,
+              );
+
+              return `
               <tr>
                 <td><span class="table-date">${escapeHtml(event.month || "TBD")} ${escapeHtml(event.day || "--")}</span></td>
-                <td>${escapeHtml(event.title)}</td>
-                <td>${escapeHtml(event.category || "Campus activity")}</td>
-                <td>${escapeHtml(event.location || "Location pending")}</td>
-                <td>${escapeHtml(event.time || "TBD")}</td>
+                <td>
+                  <div class="table-event-cell">
+                    <span class="table-event-title">${escapeHtml(event.title)}</span>
+                    <p class="table-event-note">${escapeHtml(note)}</p>
+                  </div>
+                </td>
+                <td><span class="table-meta-text">${escapeHtml(event.category || "Campus activity")}</span></td>
+                <td><span class="table-meta-text">${escapeHtml(event.location || "Location pending")}</span></td>
+                <td><span class="table-meta-text">${escapeHtml(event.time || "TBD")}</span></td>
                 <td><button type="button" class="table-action">${escapeHtml(event.actionLabel || "View")}</button></td>
               </tr>
-            `,
+            `;
+            },
           )
           .join("")}
       </tbody>
@@ -367,8 +411,9 @@ function adminEventMarkup(event) {
     <article class="admin-record">
       <div class="admin-record-header">
         <div>
+          <p class="record-kicker">Event</p>
           <h3>${escapeHtml(event.title)}</h3>
-          <p>${escapeHtml(event.description || "No event description added yet.")}</p>
+          <p>${escapeHtml(truncateText(event.description || "No event description added yet.", 180))}</p>
         </div>
         <div class="admin-record-actions">
           <button type="button" class="button danger" data-delete-event="${escapeHtml(event.id)}">Delete</button>
@@ -386,8 +431,9 @@ function adminAnnouncementMarkup(item) {
     <article class="admin-record">
       <div class="admin-record-header">
         <div>
+          <p class="record-kicker">Announcement</p>
           <h3>${escapeHtml(item.title)}</h3>
-          <p>${escapeHtml(item.detail || "No announcement detail provided.")}</p>
+          <p>${escapeHtml(truncateText(item.detail || "No announcement detail provided.", 180))}</p>
         </div>
         <div class="admin-record-actions">
           <button type="button" class="button danger" data-delete-announcement="${escapeHtml(item.id)}">Delete</button>
@@ -409,8 +455,9 @@ function adminClubMarkup(club) {
     <article class="admin-record">
       <div class="admin-record-header">
         <div>
+          <p class="record-kicker">Club</p>
           <h3>${escapeHtml(club.name)}</h3>
-          <p>${escapeHtml(club.focus || "No club focus provided.")}</p>
+          <p>${escapeHtml(truncateText(club.focus || "No club focus provided.", 180))}</p>
         </div>
         <div class="admin-record-actions">
           <button type="button" class="button danger" data-delete-club="${escapeHtml(club.id)}">Delete</button>
@@ -428,10 +475,13 @@ function adminUserMarkup(user) {
   return `
     <article class="admin-user-card">
       <div class="admin-user-header">
-        <div>
-          <p class="eyebrow">Account</p>
-          <h3>${escapeHtml(user.name || "Unnamed user")}</h3>
-          <p>${escapeHtml(user.email || "No email provided")}</p>
+        <div class="admin-user-heading">
+          <div class="admin-user-avatar">${escapeHtml(getInitials(user.name || "User"))}</div>
+          <div>
+            <p class="record-kicker">Account</p>
+            <h3>${escapeHtml(user.name || "Unnamed user")}</h3>
+            <p>${escapeHtml(user.email || "No email provided")}</p>
+          </div>
         </div>
         <span class="role-chip">${escapeHtml(user.role || "Student")}</span>
       </div>
@@ -802,31 +852,46 @@ async function renderProfile() {
     return;
   }
 
+  const joinedCount = Array.isArray(user.clubs) ? user.clubs.length : 0;
+  const profileLine = [user.department || "", user.year || ""].filter(Boolean).join(" - ") || "Department pending";
+
   profileCard.innerHTML = `
-    <article class="surface-card profile-panel">
+    <article class="surface-card profile-panel profile-summary-panel">
       <div class="profile-hero">
-        <div class="profile-avatar">${escapeHtml((user.name || "U").slice(0, 1).toUpperCase())}</div>
+        <div class="profile-avatar">${escapeHtml(getInitials(user.name || "User"))}</div>
         <div>
           <p class="eyebrow">${escapeHtml(user.role || "Student")}</p>
           <h1>${escapeHtml(user.name || "Unnamed user")}</h1>
-          <p>${escapeHtml(user.department || "Department pending")}${user.year ? ` - ${escapeHtml(user.year)}` : ""}</p>
+          <p>${escapeHtml(profileLine)}</p>
+        </div>
+        <div class="profile-side-note">
+          <span class="status-tag">${escapeHtml(joinedCount)} joined ${joinedCount === 1 ? "club" : "clubs"}</span>
+          <p>${escapeHtml(user.email || "No email provided")}</p>
         </div>
       </div>
-      <div class="stat-grid stat-grid-compact">
+      <div class="stat-grid stat-grid-compact profile-stat-grid">
         ${statMarkup("RSVPs", user.rsvps || 0)}
         ${statMarkup("Check-ins", user.checkIns || 0)}
-        ${statMarkup("Joined Clubs", Array.isArray(user.clubs) ? user.clubs.length : 0)}
+        ${statMarkup("Joined Clubs", joinedCount)}
         ${statMarkup("Student ID", user.studentId || "Not set")}
       </div>
-      <div>
-        <p class="eyebrow">Joined Clubs</p>
-        <div class="joined-clubs">
-          ${
-            Array.isArray(user.clubs) && user.clubs.length
-              ? user.clubs.map((club) => `<span>${escapeHtml(club)}</span>`).join("")
-              : "<span>No club memberships yet</span>"
-          }
+      <div class="profile-columns">
+        <div>
+          <p class="eyebrow">Joined Clubs</p>
+          <div class="joined-clubs">
+            ${
+              Array.isArray(user.clubs) && user.clubs.length
+                ? user.clubs.map((club) => `<span>${escapeHtml(club)}</span>`).join("")
+                : "<span>No club memberships yet</span>"
+            }
+          </div>
         </div>
+        <aside class="profile-mini-card">
+          <p class="eyebrow">Account Snapshot</p>
+          <p><strong>Email:</strong> ${escapeHtml(user.email || "No email provided")}</p>
+          <p><strong>Student ID:</strong> ${escapeHtml(user.studentId || "Not set")}</p>
+          <p><strong>Role:</strong> ${escapeHtml(user.role || "Student")}</p>
+        </aside>
       </div>
     </article>
   `;

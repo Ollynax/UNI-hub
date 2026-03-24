@@ -7,7 +7,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
-      href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Space+Grotesk:wght@500;700&display=swap"
+      href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@600;700&family=Manrope:wght@400;500;600;700;800&family=Space+Grotesk:wght@500;700&display=swap"
       rel="stylesheet"
     />
     <link rel="stylesheet" href="/style.css" />
@@ -33,43 +33,60 @@
     </header>
 
     <main class="shell app-shell">
-      <section class="page-hero surface-card">
-        <div>
+      <section class="page-hero surface-card club-discovery-hero">
+        <div class="page-hero-copy">
           <p class="eyebrow">Club Directory</p>
-          <h1>Find a community that fits your interests.</h1>
-          <p>Browse available clubs and join directly from your student workspace.</p>
+          <h1>Find the groups people actually show up for.</h1>
+          <p>
+            Browse available clubs, look for a strong fit, and join directly from your
+            student workspace without losing track of what you picked.
+          </p>
+          <div class="page-tag-row">
+            <span class="page-tag">Discover new communities</span>
+            <span class="page-tag">Join instantly</span>
+            <span class="page-tag">Saved to profile</span>
+          </div>
         </div>
-        <div class="page-meta">
-          <span class="role-chip">Student Access</span>
-          <span id="club-membership-count">Club memberships will appear here</span>
-        </div>
+        <aside class="page-side-note">
+          <p class="eyebrow">Memberships</p>
+          <div class="page-meta column">
+            <span class="role-chip">Student Access</span>
+            <span id="club-membership-count">Club memberships will appear here</span>
+          </div>
+        </aside>
       </section>
 
-      <section class="dashboard-grid">
-        <article class="surface-card span-8">
+      <section class="dashboard-grid editorial-grid">
+        <article class="surface-card span-8 focus-panel">
           <div class="card-heading">
-            <h2>Available Clubs</h2>
+            <div>
+              <h2>Available Clubs</h2>
+              <p class="section-intro-text">Look for clarity, momentum, and people you can imagine meeting again next week.</p>
+            </div>
           </div>
           <p id="join-club-message" class="helper-note"></p>
           <div id="join-club-list" class="stack-list"></div>
         </article>
 
-        <article class="surface-card span-4">
+        <article class="surface-card span-4 context-panel">
           <div class="card-heading">
-            <h2>Joining Guide</h2>
+            <div>
+              <h2>Choosing Well</h2>
+              <p class="section-intro-text">Three simple ways to spot a good fit.</p>
+            </div>
           </div>
-          <div class="soft-list">
+          <div class="soft-list compact-soft-list">
             <div>
-              <strong>Explore fit</strong>
-              <p>Review each club's focus before joining.</p>
+              <strong>Read the purpose first</strong>
+              <p>A club with a clear focus is usually easier to commit to.</p>
             </div>
             <div>
-              <strong>Join instantly</strong>
-              <p>Your profile updates when a membership is added.</p>
+              <strong>Look for active contact details</strong>
+              <p>A working email is a good sign that someone is really running it.</p>
             </div>
             <div>
-              <strong>Stay organized</strong>
-              <p>Track your memberships from your profile page.</p>
+              <strong>Join now, decide later</strong>
+              <p>Your profile updates right away, so you can keep track without guessing.</p>
             </div>
           </div>
         </article>

@@ -7,7 +7,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
-      href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Space+Grotesk:wght@500;700&display=swap"
+      href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@600;700&family=Manrope:wght@400;500;600;700;800&family=Space+Grotesk:wght@500;700&display=swap"
       rel="stylesheet"
     />
     <link rel="stylesheet" href="/style.css" />
@@ -33,18 +33,29 @@
     </header>
 
     <main class="shell app-shell">
-      <section class="page-hero surface-card">
-        <div>
+      <section class="page-hero surface-card club-create-hero">
+        <div class="page-hero-copy">
           <p class="eyebrow">New Club Request</p>
-          <h1>Start a new student organization.</h1>
-          <p>Submit the basic club details here. Your account will be linked as the club creator.</p>
+          <h1>Start a club people can picture joining.</h1>
+          <p>
+            Submit the basics here, give the group a clear purpose, and UNI Hub will
+            link your account as the first member and creator.
+          </p>
+          <div class="page-tag-row">
+            <span class="page-tag">Name it clearly</span>
+            <span class="page-tag">Describe the focus</span>
+            <span class="page-tag">Add a real contact point</span>
+          </div>
         </div>
       </section>
 
-      <section class="dashboard-grid">
-        <article class="surface-card span-8">
+      <section class="dashboard-grid editorial-grid">
+        <article class="surface-card span-8 focus-panel">
           <div class="card-heading">
-            <h2>Club Details</h2>
+            <div>
+              <h2>Club Details</h2>
+              <p class="section-intro-text">The clearer this pitch is, the easier it is for the right people to find you.</p>
+            </div>
           </div>
           <form class="auth-form grid-form" id="create-club-form">
             <label>
@@ -68,22 +79,25 @@
           <p id="create-club-message" class="helper-note"></p>
         </article>
 
-        <article class="surface-card span-4">
+        <article class="surface-card span-4 context-panel">
           <div class="card-heading">
-            <h2>Submission Notes</h2>
-          </div>
-          <div class="soft-list">
             <div>
-              <strong>Be specific</strong>
-              <p>Use a clear club name and focus statement.</p>
+              <h2>Before You Submit</h2>
+              <p class="section-intro-text">A few details make a new club feel real instead of temporary.</p>
+            </div>
+          </div>
+          <div class="soft-list compact-soft-list">
+            <div>
+              <strong>Write the first sentence people need</strong>
+              <p>A strong focus line tells students why this group exists and who it is for.</p>
             </div>
             <div>
               <strong>Use a working contact</strong>
-              <p>The contact email helps students identify who leads the club.</p>
+              <p>The best club listings make it obvious who to reach after someone gets interested.</p>
             </div>
             <div>
-              <strong>Creator linked</strong>
-              <p>Your account is attached as the club creator and first member.</p>
+              <strong>You become the anchor</strong>
+              <p>Your account is linked as creator and first member the moment the club is created.</p>
             </div>
           </div>
         </article>

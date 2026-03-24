@@ -7,31 +7,42 @@
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
-      href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Space+Grotesk:wght@500;700&display=swap"
+      href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@600;700&family=Manrope:wght@400;500;600;700;800&family=Space+Grotesk:wght@500;700&display=swap"
       rel="stylesheet"
     />
     <link rel="stylesheet" href="/style.css" />
   </head>
   <body data-page="login" class="auth-page">
-    <main class="shell auth-layout">
-      <section class="auth-aside surface-card">
+    <main class="shell auth-layout auth-layout-editorial">
+      <section class="auth-aside surface-card auth-feature-panel">
         <p class="eyebrow">Campus Access</p>
-        <h1>Welcome back to UNI Hub.</h1>
+        <h1>Pick up where campus left off.</h1>
         <p>
-          Sign in to manage events, join clubs, review announcements, and continue
-          from your personalized dashboard.
+          Sign in to see what is happening this week, which clubs still have energy,
+          and what you already said yes to.
         </p>
+        <div class="auth-facts">
+          <article class="auth-fact">
+            <strong>Events</strong>
+            <span>Real dates, rooms, and next steps in one place.</span>
+          </article>
+          <article class="auth-fact">
+            <strong>Clubs</strong>
+            <span>Communities worth joining, not a forgotten directory.</span>
+          </article>
+        </div>
         <div class="auth-points">
-          <span>Campus event coordination</span>
-          <span>Club and organization management</span>
-          <span>Attendance and communication tracking</span>
+          <span>One account across events, clubs, and notices</span>
+          <span>A cleaner dashboard than digging through scattered updates</span>
+          <span>Everything saved back to your student profile</span>
         </div>
       </section>
 
-      <section class="auth-card surface-card">
+      <section class="auth-card surface-card auth-form-panel">
         <div class="auth-header">
-          <p class="eyebrow">Log In</p>
-          <h2>Access your account</h2>
+          <p class="eyebrow">Sign In</p>
+          <h2>Welcome back</h2>
+          <p class="auth-subtitle">Use the email address connected to your UNI Hub account.</p>
         </div>
         <form class="auth-form" id="login-form">
           <label>
@@ -45,6 +56,9 @@
           <button type="submit" class="button full">Log In</button>
         </form>
         <p class="auth-error" id="auth-message"></p>
+        <p class="auth-mini-note">
+          Your dashboard keeps track of clubs, RSVPs, and campus updates automatically once you are in.
+        </p>
         <p class="auth-foot">
           Need an account? <a href="/register">Create one here</a>
         </p>

@@ -7,7 +7,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
-      href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Space+Grotesk:wght@500;700&display=swap"
+      href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@600;700&family=Manrope:wght@400;500;600;700;800&family=Space+Grotesk:wght@500;700&display=swap"
       rel="stylesheet"
     />
     <link rel="stylesheet" href="/style.css" />
@@ -34,54 +34,71 @@
     </header>
 
     <main class="shell app-shell">
-      <section class="page-hero surface-card">
-        <div>
-          <p class="eyebrow">Dashboard Overview</p>
+      <section class="page-hero surface-card dashboard-hero">
+        <div class="page-hero-copy">
+          <p class="eyebrow">This Week on Campus</p>
           <h1 id="dashboard-greeting">Welcome back.</h1>
           <p>
-            Monitor upcoming activity, review campus communications, and move quickly
-            through the most important student actions.
+            Use UNI Hub as a calmer view of what matters next: events worth showing
+            up for, clubs still open, and updates that should not get buried.
           </p>
-          <div class="page-meta">
+          <div class="page-tag-row">
+            <span class="page-tag">Events worth showing up for</span>
+            <span class="page-tag">Clubs still taking members</span>
+            <span class="page-tag">Announcements without the noise</span>
+          </div>
+        </div>
+        <aside class="page-side-note">
+          <p class="eyebrow">Signed In As</p>
+          <div class="page-meta column">
             <span class="role-chip" id="dashboard-role">Student Workspace</span>
             <span id="dashboard-email">Signed-in account</span>
           </div>
-        </div>
-        <div id="dashboard-stats" class="stat-grid"></div>
+          <div id="dashboard-stats" class="stat-grid"></div>
+        </aside>
       </section>
 
-      <section class="dashboard-grid redesigned-dashboard">
-        <article class="surface-card span-8">
+      <section class="dashboard-grid redesigned-dashboard editorial-grid">
+        <article class="surface-card span-8 focus-panel">
           <div class="card-heading">
-            <h2>Upcoming Events</h2>
+            <div>
+              <h2>Upcoming Events</h2>
+              <p class="section-intro-text">A sharper list of what is actually next on campus.</p>
+            </div>
             <a href="/adminpanel#admin-events-section" class="inline-link" data-admin-link>Manage Events</a>
           </div>
           <div id="events-table" class="table-shell"></div>
         </article>
 
-        <article class="surface-card span-4">
+        <article class="surface-card span-4 context-panel">
           <div class="card-heading">
-            <h2>Quick Actions</h2>
+            <div>
+              <h2>Start Here</h2>
+              <p class="section-intro-text">Shortcuts for the things students tend to do most often.</p>
+            </div>
           </div>
           <div class="action-stack">
             <a href="/joinclub" class="action-tile">
               <strong>Join a Club</strong>
-              <span>Browse organizations and communities</span>
+              <span>Browse active communities and add one to your profile.</span>
             </a>
             <a href="/createclub" class="action-tile">
               <strong>Create a Club</strong>
-              <span>Submit a new student organization</span>
+              <span>Start something new with a clearer pitch and contact point.</span>
             </a>
             <a href="/dashboard" class="action-tile">
               <strong>My RSVP</strong>
-              <span>Review upcoming commitments and attendance</span>
+              <span>Check the events you have committed to and what is coming soon.</span>
             </a>
           </div>
         </article>
 
         <article class="surface-card span-5">
           <div class="card-heading">
-            <h2>Club Directory</h2>
+            <div>
+              <h2>Club Directory</h2>
+              <p class="section-intro-text">Communities people are actively building right now.</p>
+            </div>
             <a href="/profile" class="inline-link">Profile</a>
           </div>
           <div id="clubs-list" class="stack-list"></div>
@@ -89,7 +106,10 @@
 
         <article class="surface-card span-7">
           <div class="card-heading">
-            <h2>Announcements</h2>
+            <div>
+              <h2>Announcements</h2>
+              <p class="section-intro-text">The messages people should actually read.</p>
+            </div>
           </div>
           <div id="announcement-list" class="stack-list"></div>
         </article>

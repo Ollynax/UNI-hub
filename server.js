@@ -432,9 +432,18 @@ function serveFile(filePath, response) {
     }
 
     const extension = path.extname(filePath).toLowerCase();
-    response.writeHead(200, {
+    const headers = {
       "Content-Type": mimeTypes[extension] || "application/octet-stream",
-    });
+    };
+
+    // Keep the browser from reusing stale app shells after role or UI changes.
+    if ([".html", ".css", ".js", ".json"].includes(extension)) {
+      headers["Cache-Control"] = "no-store, no-cache, must-revalidate, proxy-revalidate";
+      headers.Pragma = "no-cache";
+      headers.Expires = "0";
+    }
+
+    response.writeHead(200, headers);
     response.end(content);
   });
 }
