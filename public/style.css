@@ -4,6 +4,7 @@
   --paper: rgba(241, 245, 255, 0.18);
   --paper-strong: rgba(248, 250, 255, 0.94);
   --ink: #22315f;
+  --deep-ink: #18274f;
   --muted: #6f7ea8;
   --line: rgba(42, 62, 125, 0.12);
   --primary: #47a4ff;
@@ -1629,6 +1630,29 @@ img {
 
 .helper-note:empty {
   display: none;
+}
+
+.app-page .page-hero p,
+.app-page .page-meta span:last-child,
+.app-page .announcement-card p,
+.app-page .club-card p,
+.app-page .preview-copy p,
+.app-page .phone-card p,
+.app-page .empty-state,
+.app-page .soft-list p,
+.app-page .stat-pill span,
+.app-page .admin-sidebar p,
+.app-page .admin-record p,
+.app-page .admin-user-card p {
+  color: var(--deep-ink);
+}
+
+.app-page .helper-note:not([data-status]) {
+  color: var(--deep-ink);
+}
+
+.app-page .events-table th {
+  color: #30427a;
 }
 
 .button.danger {
